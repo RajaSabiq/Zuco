@@ -1,13 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Login from './Screens/Login';
+import Profile from './Screens/Profile';
+import { useFonts } from 'expo-font';
 
+const mainStack = createStackNavigator();
 export default function App() {
+  const [loaded] = useFonts({
+    Poppins: require('./assets/fonts/Poppins.ttf'),
+    DMSans: require('./assets/fonts/DMSans.ttf'),
+  });
+  if (!loaded) {
+    return null;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <mainStack.Navigator
+        initialRouteName='login'
+        screenOptions={{ headerShown: false }}
+      >
+        <mainStack.Screen name='login' component={Login} />
+        <mainStack.Screen name='profile' component={Profile} />
+      </mainStack.Navigator>
+    </NavigationContainer>
   );
 }
 
