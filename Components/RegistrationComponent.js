@@ -25,6 +25,7 @@ const RegistrationComponent = ({ setEmail }) => {
         style={[GlobalStyle.textInputStyle, { marginTop: normalize(20) }]}
         placeholder={'Email'}
         onChangeText={(e) => setEmail(e)}
+        keyboardType="email-address"
       />
     </View>
   );

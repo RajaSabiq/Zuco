@@ -13,6 +13,7 @@ const LoginComponent = ({ setEmail, setPassword }) => {
         ]}
         placeholder={'Email address'}
         onChangeText={(e) => setEmail(e)}
+        keyboardType="email-address"
       />
       <TextInput
         style={[GlobalStyle.textInputStyle, { marginTop: normalize(10) }]}

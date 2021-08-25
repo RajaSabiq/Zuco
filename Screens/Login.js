@@ -16,6 +16,7 @@ import { normalize } from '../Style/Responsive';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import axios from 'axios';
 import { Snackbar } from 'react-native-paper';
+import {SERVER,TOKEN } from "@env"
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -31,7 +32,7 @@ const Login = ({ navigation }) => {
       if (email && password) {
         axios
           .post(
-            'https://club.arnostalpaert.be/api/user/login',
+            `${SERVER}login`,
             {
               data: {
                 type: 'login',
@@ -43,7 +44,7 @@ const Login = ({ navigation }) => {
             },
             {
               headers: {
-                Authorization: `Bearer 2|IwJRd11o7T3HThhfrRKYBmvXKV9PKad1k2MjHhYM`,
+                Authorization: `Bearer ${TOKEN}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
               },

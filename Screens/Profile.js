@@ -4,14 +4,15 @@ import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import { useFonts } from 'expo-font';
 import axios from 'axios';
+import { SERVER,TOKEN } from "@env";
 
 const Profile = ({ route }) => {
   const [data, setData] = useState('');
   useEffect(() => {
     axios
-      .get(`https://club.arnostalpaert.be/api/user/${route.params.user_id}`, {
+      .get(`${SERVER}${route.params.user_id}`, {
         headers: {
-          Authorization: `Bearer 2|IwJRd11o7T3HThhfrRKYBmvXKV9PKad1k2MjHhYM`,
+          Authorization: `Bearer ${TOKEN}`,
         },
       })
       .then((res) => {
