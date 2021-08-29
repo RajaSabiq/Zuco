@@ -9,14 +9,17 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import LoginComponent from '../Components/LoginComponent';
 import RegistrationComponent from '../Components/RegistrationComponent';
 import { normalize } from '../Style/Responsive';
 import { GlobalStyle } from '../Style/GloabalStyle';
+import { Entypo } from '@expo/vector-icons';
 import axios from 'axios';
+import { BlurView } from 'expo-blur';
 import { Snackbar } from 'react-native-paper';
-import {SERVER,TOKEN } from "@env"
+import { SERVER, TOKEN } from '@env';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -25,6 +28,7 @@ const Login = ({ navigation }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isWorking, setIsWorking] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
 
   const onBtnPress = () => {
     setIsWorking(true);
@@ -82,18 +86,45 @@ const Login = ({ navigation }) => {
       }
     }
   };
+
+  const toggole = () => {
+    setVisibleForgetPassword(!visibleForgetPassword);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <Modal visible={visibleForgetPassword} transparent={true}>
+        <BlurView
+          intensity={200}
+          style={{
+            backgroundColor: '#fff',
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ width: '90%', backgroundColor: '#fff' }}>
+            <TouchableOpacity>
+              <Entypo name='cross' size={24} color='black' />
+            </TouchableOpacity>
+          </View>
+        </BlurView>
+      </Modal>
       <ScrollView style={GlobalStyle.container}>
         <Image
           source={require('../assets/logo.png')}
-          style={{ alignSelf: 'center', marginTop: 15 }}
+          style={{
+            alignSelf: 'center',
+            marginTop: 15,
+            height: normalize(65),
+            width: normalize(152.13),
+          }}
         />
         <View
           style={{
             position: 'relative',
             padding: normalize(25),
-            marginTop: normalize(60),
+            marginTop: normalize(45),
             alignItems: 'center',
             flexDirection: 'row',
           }}
@@ -149,8 +180,9 @@ const Login = ({ navigation }) => {
           style={{
             height: normalize(45),
             backgroundColor: '#B28A17',
-            width: normalize(155),
+            minWidth: normalize(155),
             alignItems: 'center',
+            paddingHorizontal: normalize(7),
             justifyContent: 'center',
             borderRadius: 100,
             alignSelf: 'center',
@@ -159,13 +191,14 @@ const Login = ({ navigation }) => {
           {isWorking ? (
             <ActivityIndicator color='white' size='small' />
           ) : (
-            <Text style={[styles.textStyle, { fontSize: 17 }]}>
+            <Text style={[styles.textStyle, { fontSize: normalize(13) }]}>
               {isLogin ? 'Login' : 'Email me instructions'}
             </Text>
           )}
         </TouchableOpacity>
 
         <TouchableOpacity
+          onPress={toggole}
           style={{ marginTop: normalize(35), alignSelf: 'center' }}
         >
           <Text
@@ -188,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     top: 0,
     bottom: 0,
-    width: normalize(135),
+    minWidth: normalize(135),
     alignItems: 'center',
     justifyContent: 'center',
   },
