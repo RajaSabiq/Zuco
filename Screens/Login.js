@@ -3,6 +3,7 @@ import {
   Image,
   SafeAreaView,
   Text,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
   View,
@@ -27,16 +28,19 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [isWorking, setIsWorking] = useState(false);
+  const [isForgetWorking, setIsForgetWorking] = useState(false);
   const [visible, setVisible] = useState(false);
   const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
+  const [isForgetvisible, setForgetVisible] = useState(false);
 
   const onBtnPress = () => {
     setIsWorking(true);
+    console.log(`${SERVER}auth/login`);
     if (isLogin) {
       if (email && password) {
         axios
           .post(
-            `${SERVER}login`,
+            `${SERVER}auth/login`,
             {
               data: {
                 type: 'login',
@@ -76,9 +80,30 @@ const Login = ({ navigation }) => {
       }
     } else {
       if (email) {
-        setIsWorking(false);
-        setVisible(true);
-        setMessage(`email is ${email}`);
+        axios
+          .post(
+            `${SERVER}auth/register`,
+            {
+              data: {
+                type: 'register',
+                attributes: {
+                  email: email,
+                },
+              },
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+          .then(() => {
+            setIsWorking(false);
+            setVisible(true);
+            setMessage(`Send an email to :${email}`);
+          });
       } else {
         setIsWorking(false);
         setVisible(true);
@@ -103,12 +128,98 @@ const Login = ({ navigation }) => {
             alignItems: 'center',
           }}
         >
-          <View style={{ width: '90%', backgroundColor: '#fff' }}>
-            <TouchableOpacity>
+          <View
+            style={{
+              width: '90%',
+              backgroundColor: '#fff',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowOpacity: 0.29,
+              shadowRadius: 4.65,
+              padding: 12,
+
+              elevation: 7,
+              borderRadius: 10,
+            }}
+          >
+            <TouchableOpacity onPress={toggole}>
               <Entypo name='cross' size={24} color='black' />
+            </TouchableOpacity>
+            <TextInput
+              style={[
+                GlobalStyle.textInputStyle,
+                { marginVertical: normalize(10) },
+              ]}
+              value={email}
+              placeholder={'Email address'}
+              onChangeText={(e) => setEmail(e)}
+              keyboardType='email-address'
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setIsForgetWorking(true);
+                axios
+                  .post(
+                    `${SERVER}auth/forgot-password`,
+                    {
+                      data: {
+                        type: 'forgot-password',
+                        attributes: {
+                          email: email,
+                        },
+                      },
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${TOKEN}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                      },
+                    }
+                  )
+                  .then(() => {
+                    setIsForgetWorking(false);
+                    setVisibleForgetPassword(false);
+                    setVisible(true);
+                    setMessage(`Send an email to :${email}`);
+                  })
+                  .catch((err) => {
+                    console.log(err, email, TOKEN);
+                    setIsForgetWorking(false);
+                    setForgetVisible(true);
+                    setMessage(`Invalid Email address`);
+                  });
+              }}
+              style={{
+                height: normalize(37),
+                backgroundColor: '#B28A17',
+                minWidth: normalize(100),
+                alignItems: 'center',
+                paddingHorizontal: normalize(7),
+                justifyContent: 'center',
+                borderRadius: 100,
+                alignSelf: 'center',
+              }}
+            >
+              {isForgetWorking ? (
+                <ActivityIndicator color='white' size='small' />
+              ) : (
+                <Text style={[styles.textStyle, { fontSize: normalize(15) }]}>
+                  Send
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </BlurView>
+        <Snackbar
+          visible={isForgetvisible}
+          onDismiss={() => setForgetVisible(false)}
+        >
+          <Text>{message}</Text>
+        </Snackbar>
       </Modal>
       <ScrollView style={GlobalStyle.container}>
         <Image
@@ -207,10 +318,14 @@ const Login = ({ navigation }) => {
             Wachtwoord vergeten?
           </Text>
         </TouchableOpacity>
-        <Snackbar visible={visible} onDismiss={() => setVisible(false)}>
-          <Text>{message}</Text>
-        </Snackbar>
       </ScrollView>
+      <Snackbar
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+        visible={visible}
+        onDismiss={() => setVisible(false)}
+      >
+        <Text>{message}</Text>
+      </Snackbar>
     </SafeAreaView>
   );
 };

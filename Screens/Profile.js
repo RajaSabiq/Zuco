@@ -4,13 +4,14 @@ import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import { useFonts } from 'expo-font';
 import axios from 'axios';
-import { SERVER,TOKEN } from "@env";
+import { SERVER, TOKEN } from '@env';
 
 const Profile = ({ route }) => {
   const [data, setData] = useState('');
   useEffect(() => {
+    console.log(`${SERVER}user/${route.params.user_id}`);
     axios
-      .get(`${SERVER}${route.params.user_id}`, {
+      .get(`${SERVER}user/${route.params.user_id}`, {
         headers: {
           Authorization: `Bearer ${TOKEN}`,
         },
