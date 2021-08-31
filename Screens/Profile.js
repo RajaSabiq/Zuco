@@ -24,7 +24,11 @@ const Profile = ({ route }) => {
   return (
     <View style={[GlobalStyle.container, { alignItems: 'center' }]}>
       <Image
-        source={require('../assets/icon.png')}
+        source={
+          data?.attributes?.profile_image_path
+            ? { uri: data?.attributes?.profile_image_path }
+            : require('../assets/icon.png')
+        }
         style={{
           width: normalize(130),
           height: normalize(130),
@@ -60,7 +64,7 @@ const Profile = ({ route }) => {
           marginVertical: normalize(3),
         }}
       >
-        Geboortedatum: 01-01-1111
+        Geboortedatum: {data?.attributes?.date_of_birth}
       </Text>
       <Text
         style={{
@@ -70,11 +74,20 @@ const Profile = ({ route }) => {
           marginVertical: normalize(3),
         }}
       >
-        Lidmaatschap: 08-01-2021 - 08-01-2022
+        Lidmaatschap:
+        {data?.relationships?.length > 0
+          ? data?.relationships['active-membership']?.data?.attributes
+              ?.validity_from
+          : ' 0000-00-00 '}
+        -
+        {data?.relationships?.length > 0
+          ? data?.relationships['active-membership']?.data?.attributes
+              ?.validity_until
+          : ' 0000-00-00'}
       </Text>
       <Image
         source={{
-          uri: data?.attributes?.qr,
+          uri: data?.attributes?.qr_code_path,
         }}
         style={{
           width: normalize(170),

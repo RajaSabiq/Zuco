@@ -100,6 +100,7 @@ const Login = ({ navigation }) => {
             }
           )
           .then(() => {
+            setEmail('');
             setIsWorking(false);
             setVisible(true);
             setMessage(`Send an email to :${email}`);
@@ -181,6 +182,7 @@ const Login = ({ navigation }) => {
                     }
                   )
                   .then(() => {
+                    setEmail('');
                     setIsForgetWorking(false);
                     setVisibleForgetPassword(false);
                     setVisible(true);
@@ -322,6 +324,7 @@ const Login = ({ navigation }) => {
       <Snackbar
         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
         visible={visible}
+        duration={1000}
         onDismiss={() => setVisible(false)}
       >
         <Text>{message}</Text>
