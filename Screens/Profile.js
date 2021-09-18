@@ -1,27 +1,77 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import { useFonts } from 'expo-font';
 import axios from 'axios';
 import { SERVER, TOKEN } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import Base64 from 'Base64';
 
 const Profile = ({ route }) => {
-  const [data, setData] = useState('');
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date().getTime());
   useEffect(() => {
-    console.log(`${SERVER}user/${route.params.user_id}`);
-    axios
-      .get(`${SERVER}user/${route.params.user_id}`, {
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-        },
-      })
-      .then((res) => {
-        setData(res.data.data);
-      });
+    setIsLoading(true);
+    (async () => {
+      const value = await AsyncStorage.getItem('user_id');
+      if (value !== null) {
+        console.log(value);
+        axios
+          .get(`${SERVER}user/${value}`, {
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+            },
+          })
+          .then((res) => {
+            setIsLoading(false);
+            setData(res.data.data);
+            selfCalling();
+          });
+      }
+    })();
   }, []);
 
-  return (
+  const selfCalling = async () => {
+    setCurrentTime(new Date().getTime());
+    if (data) {
+      const expireyDate = Date.parse(
+        data?.relationships['qr-code'].data.attributes.expired_at.split(
+          ' '
+        )[0] +
+          'T' +
+          data?.relationships['qr-code'].data.attributes.expired_at.split(
+            ' '
+          )[1]
+      );
+      if (expireyDate >= currentTime) {
+        // console.log('[+] Expiery Exceed');
+
+        const value = await AsyncStorage.getItem('user_id');
+        axios
+          .get(`${SERVER}user/${value}`, {
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+            },
+          })
+          .then((res) => {
+            setData(res.data.data);
+          });
+      }
+    }
+    // console.log('Outside');
+    setInterval(() => {
+      // console.log('Inside');
+      selfCalling();
+    }, 120000);
+  };
+
+  return isLoading ? (
+    <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+      <ActivityIndicator size='large' color='black' />
+    </View>
+  ) : (
     <View style={[GlobalStyle.container, { alignItems: 'center' }]}>
       <Image
         source={
@@ -87,7 +137,9 @@ const Profile = ({ route }) => {
       </Text>
       <Image
         source={{
-          uri: data?.attributes?.qr_code_path,
+          uri:
+            data?.relationships &&
+            `data:image/jpeg;base64,${data?.relationships['qr-code'].data.attributes.image}`,
         }}
         style={{
           width: normalize(170),

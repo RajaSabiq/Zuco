@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -20,6 +20,7 @@ import { Entypo } from '@expo/vector-icons';
 import axios from 'axios';
 import { BlurView } from 'expo-blur';
 import { Snackbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SERVER, TOKEN } from '@env';
 
 const Login = ({ navigation }) => {
@@ -32,10 +33,25 @@ const Login = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
   const [isForgetvisible, setForgetVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    (async () => {
+      try {
+        const value = await AsyncStorage.getItem('user_id');
+        if (value !== null) {
+          navigation.replace('profile');
+        } else {
+          setIsLoading(true);
+        }
+      } catch (e) {
+        // saving error
+      }
+    })();
+  }, []);
 
   const onBtnPress = () => {
     setIsWorking(true);
-    console.log(`${SERVER}auth/login`);
+    // console.log(`${SERVER}auth/login`);
     if (isLogin) {
       if (email && password) {
         axios
@@ -58,12 +74,14 @@ const Login = ({ navigation }) => {
               },
             }
           )
-          .then((res) => {
+          .then(async (res) => {
             setIsWorking(false);
             if (res.data?.data) {
-              navigation.navigate('profile', {
-                user_id: res.data.data.attributes.user_id,
-              });
+              await AsyncStorage.setItem(
+                'user_id',
+                res.data.data.attributes.user_id.toString()
+              );
+              navigation.replace('profile');
               setEmail('');
               setPassword('');
             }
@@ -117,7 +135,11 @@ const Login = ({ navigation }) => {
     setVisibleForgetPassword(!visibleForgetPassword);
   };
 
-  return (
+  return !isLoading ? (
+    <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+      <ActivityIndicator size={'large'} color={'#333'} />
+    </View>
+  ) : (
     <SafeAreaView style={{ flex: 1 }}>
       <Modal visible={visibleForgetPassword} transparent={true}>
         <BlurView
@@ -189,7 +211,7 @@ const Login = ({ navigation }) => {
                     setMessage(`Send an email to :${email}`);
                   })
                   .catch((err) => {
-                    console.log(err, email, TOKEN);
+                    // console.log(err, email, TOKEN);
                     setIsForgetWorking(false);
                     setForgetVisible(true);
                     setMessage(`Invalid Email address`);
@@ -284,7 +306,12 @@ const Login = ({ navigation }) => {
           </TouchableWithoutFeedback>
         </View>
         {isLogin ? (
-          <LoginComponent setEmail={setEmail} setPassword={setPassword} />
+          <LoginComponent
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+          />
         ) : (
           <RegistrationComponent setEmail={setEmail} />
         )}
