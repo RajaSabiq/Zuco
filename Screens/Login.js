@@ -162,19 +162,45 @@ const Login = ({ navigation }) => {
               },
               shadowOpacity: 0.29,
               shadowRadius: 4.65,
-              padding: 12,
-
+              padding: normalize(25),
+              position: 'relative',
               elevation: 7,
+
               borderRadius: 10,
             }}
           >
-            <TouchableOpacity onPress={toggole}>
-              <Entypo name='cross' size={24} color='black' />
+            <TouchableOpacity
+              style={{
+                borderWidth: 2,
+                borderColor: 'gray',
+                borderRadius: 100,
+                padding: 5,
+                top: 10,
+                right: 10,
+                position: 'absolute',
+              }}
+              onPress={toggole}
+            >
+              <Entypo name='cross' size={20} color='black' />
             </TouchableOpacity>
+            <Text style={{ fontWeight: 'bold', fontFamily: 'Poppins' }}>
+              Wachtwoord vergeten?
+            </Text>
+            <Text
+              style={{
+                marginTop: 10,
+                fontFamily: 'DMSans',
+                color: 'gray',
+                fontSize: normalize(12),
+              }}
+            >
+              Laat hieronder uw email adres achter.{'\n'}
+              We sturen je zo dadelijk een reset link.
+            </Text>
             <TextInput
               style={[
                 GlobalStyle.textInputStyle,
-                { marginVertical: normalize(10) },
+                { marginVertical: normalize(20) },
               ]}
               value={email}
               placeholder={'Email address'}
@@ -218,7 +244,7 @@ const Login = ({ navigation }) => {
                   });
               }}
               style={{
-                height: normalize(37),
+                height: normalize(40),
                 backgroundColor: '#B28A17',
                 minWidth: normalize(100),
                 alignItems: 'center',

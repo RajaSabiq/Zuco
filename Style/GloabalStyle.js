@@ -13,8 +13,8 @@ export const GlobalStyle = StyleSheet.create({
   },
   textInputStyle: {
     borderColor: '#ccc',
-    borderWidth: 1,
-    padding: normalize(7),
+    borderWidth: 2,
+    padding: normalize(9),
     backgroundColor: '#fff',
     borderRadius: 100,
     paddingHorizontal: normalize(15),
