@@ -21,7 +21,7 @@ import axios from 'axios';
 import { BlurView } from 'expo-blur';
 import { Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SERVER, TOKEN } from '@env';
+import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -51,12 +51,12 @@ const Login = ({ navigation }) => {
 
   const onBtnPress = () => {
     setIsWorking(true);
-    // console.log(`${SERVER}auth/login`);
+    console.log(`${PRODUCTIONSERVER}auth/login`);
     if (isLogin) {
       if (email && password) {
         axios
           .post(
-            `${SERVER}auth/login`,
+            `${PRODUCTIONSERVER}auth/login`,
             {
               data: {
                 type: 'login',
@@ -68,7 +68,7 @@ const Login = ({ navigation }) => {
             },
             {
               headers: {
-                Authorization: `Bearer ${TOKEN}`,
+                Authorization: `Bearer ${PRODUCTIONTOKEN}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
               },
@@ -100,7 +100,7 @@ const Login = ({ navigation }) => {
       if (email) {
         axios
           .post(
-            `${SERVER}auth/register`,
+            `${PRODUCTIONSERVER}auth/register`,
             {
               data: {
                 type: 'register',
@@ -111,7 +111,7 @@ const Login = ({ navigation }) => {
             },
             {
               headers: {
-                Authorization: `Bearer ${TOKEN}`,
+                Authorization: `Bearer ${PRODUCTIONTOKEN}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
               },
@@ -212,7 +212,7 @@ const Login = ({ navigation }) => {
                 setIsForgetWorking(true);
                 axios
                   .post(
-                    `${SERVER}auth/forgot-password`,
+                    `${PRODUCTIONSERVER}auth/forgot-password`,
                     {
                       data: {
                         type: 'forgot-password',
@@ -223,7 +223,7 @@ const Login = ({ navigation }) => {
                     },
                     {
                       headers: {
-                        Authorization: `Bearer ${TOKEN}`,
+                        Authorization: `Bearer ${PRODUCTIONTOKEN}`,
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                       },
