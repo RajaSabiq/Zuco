@@ -4,20 +4,22 @@
     "slug": "Zuco",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon_logo.png",
+    "icon": "./assets/icon.png",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.magicalnightlife.zuco",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon_logo.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.mr_joker.Zuco"
+      "package": "com.magicalnightlife.zuco"
     },
     "web": {
       "favicon": "./assets/favicon.png"
