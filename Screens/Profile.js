@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
-import { useFonts } from 'expo-font';
 import axios from 'axios';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,6 +25,24 @@ const Profile = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
+    var date = new Date().toISOString().split('T');
+    console.log(
+      date[0].replace('-', '/').replace('-', '/'),
+      date[1].split('.')[0]
+
+      // new Date().getFullYear().toString() +
+      //   '/' +
+      //   new Date().getMonth().toString() +
+      //   '/' +
+      //   new Date().getMonth().toString() +
+      //   ' ' +
+      //   new Date().getHours().toString() +
+      //   ':' +
+      //   new Date().getMinutes().toString() +
+      //   ':' +
+      //   new Date().getSeconds().toString() +
+      //   ' +0000'
+    );
     const backAction = () => {
       Alert.alert('Hold on!', 'Are you sure you want to Exit?', [
         {
@@ -41,6 +58,15 @@ const Profile = ({ route, navigation }) => {
       ]);
       return true;
     };
+
+    function convertTZ(date, tzString) {
+      return new Date(
+        (typeof date === 'string' ? new Date(date) : date).toLocaleString(
+          'en-US',
+          { timeZone: tzString }
+        )
+      );
+    }
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
