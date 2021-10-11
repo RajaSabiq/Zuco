@@ -25,24 +25,6 @@ const Profile = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
-    var date = new Date().toISOString().split('T');
-    console.log(
-      date[0].replace('-', '/').replace('-', '/'),
-      date[1].split('.')[0]
-
-      // new Date().getFullYear().toString() +
-      //   '/' +
-      //   new Date().getMonth().toString() +
-      //   '/' +
-      //   new Date().getMonth().toString() +
-      //   ' ' +
-      //   new Date().getHours().toString() +
-      //   ':' +
-      //   new Date().getMinutes().toString() +
-      //   ':' +
-      //   new Date().getSeconds().toString() +
-      //   ' +0000'
-    );
     const backAction = () => {
       Alert.alert('Hold on!', 'Are you sure you want to Exit?', [
         {
@@ -132,9 +114,13 @@ const Profile = ({ route, navigation }) => {
           PRODUCTIONTOKEN,
           parseInt(expirey) - parseInt(currentTime)
         );
+        var time = parseInt(expirey) - parseInt(currentTime) / 100;
+        if (time < 0) {
+          time = 60000;
+        }
         setInterval(() => {
           selfCalling();
-        }, (parseInt(expirey) - parseInt(currentTime)) / 100);
+        }, time);
       });
   };
 
