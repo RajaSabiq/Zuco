@@ -22,7 +22,6 @@ import { Ionicons } from '@expo/vector-icons';
 const Profile = ({ route, navigation }) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date().getTime());
   useEffect(() => {
     setIsLoading(true);
     selfCalling();
@@ -52,8 +51,6 @@ const Profile = ({ route, navigation }) => {
   }, []);
 
   const selfCalling = async () => {
-    setCurrentTime(new Date().getTime());
-    console.log(new Date().toTimeString());
     const value = await AsyncStorage.getItem('user_id');
     axios
       .get(`${PRODUCTIONSERVER}user/${value}`, {
@@ -63,36 +60,17 @@ const Profile = ({ route, navigation }) => {
       })
       .then((res) => {
         setIsLoading(false);
-        const expirey = new Date(
-          res.data?.data?.relationships[
-            'qr-code'
-          ].data.attributes.expired_at.split(' ')[0] +
-            ' ' +
-            res.data?.data?.relationships[
-              'qr-code'
-            ].data.attributes.expired_at.split(' ')[1]
+        console.log(
+          parseInt(
+            res.data.data.relationships['qr-code'].data.attributes['expires_in']
+          )
         );
         setData(res.data.data);
-        var interval =
-          parseInt(expirey.getTime()) - parseInt(new Date().getTime());
-        if (interval < 0) {
-          interval = 60000;
-        }
-
-        console.log(diff_minutes(expirey, new Date()), new Date().getTime());
-
         setInterval(() => {
           selfCalling();
-        }, parseInt(interval));
+        }, parseInt(res.data.data.relationships['qr-code'].data.attributes['expires_in']));
       });
   };
-
-  function diff_minutes(dt2, dt1) {
-    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
-    diff /= 60;
-    return Math.abs(Math.round(diff));
-  }
-
   return (
     <SafeAreaView
       style={{

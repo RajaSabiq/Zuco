@@ -54,48 +54,43 @@ const Login = ({ navigation }) => {
     setIsWorking(true);
     if (isLogin) {
       if (email && password) {
-        if (new Date().getTime().toString().split(' ')[1] == 'GMT +0200') {
-          axios
-            .post(
-              `${PRODUCTIONSERVER}auth/login`,
-              {
-                data: {
-                  type: 'login',
-                  attributes: {
-                    email: email,
-                    password: password,
-                  },
+        axios
+          .post(
+            `${PRODUCTIONSERVER}auth/login`,
+            {
+              data: {
+                type: 'login',
+                attributes: {
+                  email: email,
+                  password: password,
                 },
               },
-              {
-                headers: {
-                  Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-            .then(async (res) => {
-              setIsWorking(false);
-              if (res.data?.data) {
-                await AsyncStorage.setItem(
-                  'user_id',
-                  res.data.data.attributes.user_id.toString()
-                );
-                navigation.replace('profile');
-                setEmail('');
-                setPassword('');
-              }
-            })
-            .catch(() => {
-              setIsWorking(false);
-              setVisible(true);
-              setMessage('Wrong email and password');
-            });
-        } else {
-          Alert.alert('Your Timespan is not GMT +0200');
-          setIsWorking(false);
-        }
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${PRODUCTIONTOKEN}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+          .then(async (res) => {
+            setIsWorking(false);
+            if (res.data?.data) {
+              await AsyncStorage.setItem(
+                'user_id',
+                res.data.data.attributes.user_id.toString()
+              );
+              navigation.replace('profile');
+              setEmail('');
+              setPassword('');
+            }
+          })
+          .catch(() => {
+            setIsWorking(false);
+            setVisible(true);
+            setMessage('Wrong email and password');
+          });
       } else {
         setIsWorking(false);
         setVisible(true);
