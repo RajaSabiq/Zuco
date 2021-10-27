@@ -359,7 +359,7 @@ const Login = ({ navigation }) => {
                 setPassword={setPassword}
               />
             ) : (
-              <RegistrationComponent setEmail={setEmail} />
+              <RegistrationComponent setEmail={setEmail} email={email} />
             )}
             <TouchableOpacity
               onPress={onBtnPress}

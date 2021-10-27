@@ -10,7 +10,7 @@ import {
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 
-const RegistrationComponent = ({ setEmail }) => {
+const RegistrationComponent = ({ setEmail, email }) => {
   return (
     <View style={GlobalStyle.itemContainer}>
       <Image
@@ -28,6 +28,7 @@ const RegistrationComponent = ({ setEmail }) => {
       <TextInput
         style={[GlobalStyle.textInputStyle, { marginTop: normalize(20) }]}
         placeholder={'Email'}
+        value={email}
         onChangeText={(e) => setEmail(e)}
         keyboardType='email-address'
       />

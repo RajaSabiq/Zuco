@@ -27,9 +27,9 @@ const Profile = ({ route, navigation }) => {
     selfCalling();
   }, []);
   const backAction = () => {
-    Alert.alert('Hold on!', 'Are you sure you want to Exit?', [
+    Alert.alert('Opgelet!', 'Zeker dat je wilt afsluiten?', [
       {
-        text: 'Logout',
+        text: ' Log Out',
         onPress: async () => {
           await AsyncStorage.clear().then(() => {
             navigation.replace('login');
@@ -37,7 +37,10 @@ const Profile = ({ route, navigation }) => {
         },
         style: 'cancel',
       },
-      { text: 'YES', onPress: () => BackHandler.exitApp() },
+      {
+        text: Device.osName !== 'Android' ? 'NO' : 'YES',
+        onPress: () => BackHandler.exitApp(),
+      },
     ]);
     return true;
   };
@@ -66,7 +69,7 @@ const Profile = ({ route, navigation }) => {
           )
         );
         setData(res.data.data);
-        setInterval(() => {
+        setTimeout(() => {
           selfCalling();
         }, parseInt(res.data.data.relationships['qr-code'].data.attributes['expires_in']));
       });
