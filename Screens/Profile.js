@@ -17,11 +17,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Device from 'expo-device';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-// import Base64 from 'Base64';
+import * as Brightness from 'expo-brightness';
 
-const Profile = ({ route, navigation }) => {
+const Profile = ({ navigation }) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Brightness.requestPermissionsAsync();
+      if (status === 'granted') {
+        Brightness.setSystemBrightnessAsync(1);
+        Brightness.setBrightnessAsync(1);
+      }
+    })();
+  }, []);
   useEffect(() => {
     setIsLoading(true);
     selfCalling();

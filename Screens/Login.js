@@ -22,6 +22,7 @@ import axios from 'axios';
 import { BlurView } from 'expo-blur';
 import { Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Brightness from 'expo-brightness';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 
 const Login = ({ navigation }) => {
@@ -35,6 +36,14 @@ const Login = ({ navigation }) => {
   const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
   const [isForgetvisible, setForgetVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Brightness.requestPermissionsAsync();
+      if (status === 'granted') {
+        Brightness.setSystemBrightnessAsync(1);
+      }
+    })();
+  }, []);
   useEffect(() => {
     (async () => {
       try {
