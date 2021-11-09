@@ -41,6 +41,7 @@ const Login = ({ navigation }) => {
       const { status } = await Brightness.requestPermissionsAsync();
       if (status === 'granted') {
         Brightness.setSystemBrightnessAsync(1);
+        Brightness.setBrightnessAsync(1);
       }
     })();
   }, []);
