@@ -257,7 +257,7 @@ const Login = ({ navigation }) => {
                         setVisible(true);
                         setMessage(`Send an email to :${email}`);
                       })
-                      .catch((err) => {
+                      .catch(() => {
                         setIsForgetWorking(false);
                         setForgetVisible(true);
                         setMessage(`Invalid Email address`);

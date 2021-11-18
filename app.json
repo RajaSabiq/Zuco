@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zuco",
     "slug": "Zuco",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "updates": {
@@ -12,15 +12,15 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.magicalnightlife.zuco",
-      "buildNumber": "1.0.4"
+      "buildNumber": "1.0.5"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "con.mr_joker.Zuco",
-      "versionCode": 4
+      "package": "com.mr_joker.Zuco",
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"
