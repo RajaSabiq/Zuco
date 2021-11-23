@@ -24,6 +24,7 @@ import { Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Brightness from 'expo-brightness';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
+import { useStateValue } from '../ContextApi/SateProvider';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -36,6 +37,7 @@ const Login = ({ navigation }) => {
   const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
   const [isForgetvisible, setForgetVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [state, dispatch] = useStateValue();
   useEffect(() => {
     (async () => {
       const { status } = await Brightness.requestPermissionsAsync();
@@ -50,7 +52,7 @@ const Login = ({ navigation }) => {
       try {
         const value = await AsyncStorage.getItem('user_id');
         if (value !== null) {
-          navigation.replace('profile');
+          navigation.replace('Home');
         } else {
           setIsLoading(true);
         }
@@ -91,7 +93,11 @@ const Login = ({ navigation }) => {
                 'user_id',
                 res.data.data.attributes.user_id.toString()
               );
-              navigation.replace('profile');
+              await AsyncStorage.setItem(
+                'user_id',
+                res.data.data.attributes.user_id.toString()
+              );
+              navigation.replace('Home');
               setEmail('');
               setPassword('');
             }

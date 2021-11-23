@@ -18,8 +18,10 @@ import * as Device from 'expo-device';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Brightness from 'expo-brightness';
+import { useStateValue } from '../ContextApi/SateProvider';
 
 const Profile = ({ navigation }) => {
+  const [state, dispatch] = useStateValue();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
@@ -72,12 +74,13 @@ const Profile = ({ navigation }) => {
       })
       .then((res) => {
         setIsLoading(false);
-        console.log(
-          parseInt(
-            res.data.data.relationships['qr-code'].data.attributes['expires_in']
-          )
-        );
         setData(res.data.data);
+        dispatch({
+          type: 'SET_MEMBERSHIP',
+          isActiveMemberShip:
+            res.data.data.relationships['active-membership'] !== null,
+          impersonate_url: res.data.data.attributes.impersonate_url,
+        });
         setTimeout(() => {
           selfCalling();
         }, parseInt(res.data.data.relationships['qr-code'].data.attributes['expires_in']));
@@ -87,18 +90,27 @@ const Profile = ({ navigation }) => {
     <SafeAreaView
       style={{
         flex: 1,
-        paddingHorizontal: normalize(15),
         backgroundColor: '#fff',
       }}
     >
       {Device.osName !== 'Android' ? (
-        <TouchableOpacity onPress={backAction}>
+        <TouchableOpacity
+          style={{
+            paddingHorizontal: normalize(15),
+          }}
+          onPress={backAction}
+        >
           <Ionicons name='arrow-back' size={24} color='black' />
         </TouchableOpacity>
       ) : null}
       {isLoading ? (
         <View
-          style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+            paddingHorizontal: normalize(15),
+          }}
         >
           <ActivityIndicator size='large' color='black' />
         </View>
@@ -183,17 +195,6 @@ const Profile = ({ navigation }) => {
                 height: normalize(170),
                 maxHeight: 350,
                 maxWidth: 350,
-              }}
-            />
-          </View>
-          <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Image
-              source={require('../assets/logo.png')}
-              style={{
-                width: normalize(125),
-                height: normalize(55),
-                maxWidth: 350,
-                maxHeight: 150,
               }}
             />
           </View>

@@ -17,8 +17,15 @@ export const GlobalStyle = StyleSheet.create({
     padding: normalize(9),
     backgroundColor: '#fff',
     borderRadius: 100,
-    fontSize:normalize(12),
+    fontSize: normalize(12),
     paddingHorizontal: normalize(15),
     width: '100%',
+  },
+  headerText: {
+    fontSize: normalize(25),
+    fontWeight: '700',
+    color: '#000',
+    marginLeft: normalize(20),
+    marginBottom: normalize(10),
   },
 });
