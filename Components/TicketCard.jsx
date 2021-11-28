@@ -46,17 +46,7 @@ const TicketCard = ({
       </View>
       <Text style={styles.txSubHeader}>Tickets</Text>
       <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            console.log(impersonate_url);
-            Linking.openURL(impersonate_url);
-          }}
-        >
-          <Image
-            source={require('../assets/ticket.png')}
-            style={styles.ticket}
-          />
-        </TouchableOpacity>
+        <Image source={require('../assets/ticket.png')} style={styles.ticket} />
         <View>
           <Text style={styles.ticketType}>{ticketType}</Text>
           <Text style={styles.txticketDate}>{tickDateTime}</Text>
@@ -78,7 +68,7 @@ const TicketCard = ({
 };
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: normalize(20),
+    paddingHorizontal: normalize(25),
   },
   imageContainer: {
     borderRadius: 10,

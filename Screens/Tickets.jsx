@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, Text, View, RefreshControl, Modal } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  RefreshControl,
+  Modal,
+  TouchableOpacity,
+} from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import TicketCard from '../Components/TicketCard';
 import { GlobalStyle } from '../Style/GloabalStyle';
@@ -7,10 +14,15 @@ import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
+import { useStateValue } from '../ContextApi/SateProvider';
+import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
+import { normalize } from '../Style/Responsive';
 
 const Tickets = ({ navigation }) => {
   const [ticketList, setTicketList] = React.useState([]);
   const [refreshing, setRefreshing] = React.useState(true);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
 
   useEffect(() => {
     getList();
@@ -79,6 +91,29 @@ const Tickets = ({ navigation }) => {
   };
   return (
     <SafeAreaView style={styles.container}>
+      {!isActiveMemberShip && (
+        <TouchableOpacity
+          onPress={() => {
+            setIsOpen(true);
+          }}
+          style={{
+            backgroundColor: '#B28A17',
+            padding: normalize(10),
+            borderBottomLeftRadius: normalize(7),
+            borderBottomRightRadius: normalize(7),
+          }}
+        >
+          <Text style={{ color: '#fff', textAlign: 'center' }}>
+            Opgelet! U heeft geen actief membership. Activeer hier.
+          </Text>
+        </TouchableOpacity>
+      )}
+      <Modal visible={isOpen} transparent={false} animationType='slide'>
+        <UnActiveMembershipCard
+          impersonate_url={impersonate_url}
+          setIsOpen={setIsOpen}
+        />
+      </Modal>
       <Text style={GlobalStyle.headerText}>Mijn Bestellingen</Text>
       <FlatList
         data={ticketList}

@@ -25,7 +25,8 @@ export const GlobalStyle = StyleSheet.create({
     fontSize: normalize(25),
     fontWeight: '700',
     color: '#000',
-    marginLeft: normalize(20),
+    marginTop: normalize(10),
+    marginLeft: normalize(25),
     marginBottom: normalize(10),
   },
 });

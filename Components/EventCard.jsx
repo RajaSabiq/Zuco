@@ -21,6 +21,7 @@ const EventCard = ({
   eventName,
   fblink,
   ticketHandler,
+  url,
 }) => {
   const [{ impersonate_url, isActiveMemberShip }] = useStateValue();
   return (
@@ -56,7 +57,8 @@ const EventCard = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            if (isActiveMemberShip) Linking.openURL(impersonate_url);
+            if (isActiveMemberShip)
+              Linking.openURL(impersonate_url + '&redirect=' + url);
             else ticketHandler(true);
           }}
           style={[styles.btn, { backgroundColor: '#B28A17' }]}
@@ -70,7 +72,8 @@ const EventCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
+    paddingHorizontal: normalize(25),
+    marginBottom: normalize(15),
   },
   imageContainer: {
     borderRadius: 10,

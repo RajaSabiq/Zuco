@@ -8,8 +8,11 @@ import {
   BackHandler,
   Alert,
   TouchableOpacity,
+  RefreshControl,
+  ScrollView,
+  Modal,
+  Dimensions,
 } from 'react-native';
-import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import axios from 'axios';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
@@ -19,11 +22,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Brightness from 'expo-brightness';
 import { useStateValue } from '../ContextApi/SateProvider';
+import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
 
 const Profile = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
+
+  const onRefresh = React.useCallback(async () => {
+    setIsLoading(true);
+    const value = await AsyncStorage.getItem('user_id');
+    axios
+      .get(`${PRODUCTIONSERVER}user/${value}`, {
+        headers: {
+          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
+        },
+      })
+      .then((res) => {
+        setIsLoading(false);
+        setData(res.data.data);
+        dispatch({
+          type: 'SET_MEMBERSHIP',
+          isActiveMemberShip:
+            res.data.data.relationships['active-membership'] !== undefined,
+          impersonate_url: res.data.data.attributes.impersonate_url,
+        });
+      });
+  }, []);
+
   useEffect(() => {
     (async () => {
       const { status } = await Brightness.requestPermissionsAsync();
@@ -60,7 +88,6 @@ const Profile = ({ navigation }) => {
       'hardwareBackPress',
       backAction
     );
-
     return () => backHandler.remove();
   }, []);
 
@@ -78,7 +105,7 @@ const Profile = ({ navigation }) => {
         dispatch({
           type: 'SET_MEMBERSHIP',
           isActiveMemberShip:
-            res.data.data.relationships['active-membership'] !== null,
+            res.data.data.relationships['active-membership'] !== undefined,
           impersonate_url: res.data.data.attributes.impersonate_url,
         });
         setTimeout(() => {
@@ -91,8 +118,32 @@ const Profile = ({ navigation }) => {
       style={{
         flex: 1,
         backgroundColor: '#fff',
+        justifyContent: 'space-evenly',
       }}
     >
+      {!isActiveMemberShip && (
+        <TouchableOpacity
+          onPress={() => {
+            setIsOpen(true);
+          }}
+          style={{
+            backgroundColor: '#B28A17',
+            padding: normalize(10),
+            borderBottomLeftRadius: normalize(7),
+            borderBottomRightRadius: normalize(7),
+          }}
+        >
+          <Text style={{ color: '#fff', textAlign: 'center' }}>
+            Opgelet! U heeft geen actief membership. Activeer hier.
+          </Text>
+        </TouchableOpacity>
+      )}
+      <Modal visible={isOpen} transparent={false} animationType='slide'>
+        <UnActiveMembershipCard
+          impersonate_url={impersonate_url}
+          setIsOpen={setIsOpen}
+        />
+      </Modal>
       {Device.osName !== 'Android' ? (
         <TouchableOpacity
           style={{
@@ -103,19 +154,22 @@ const Profile = ({ navigation }) => {
           <Ionicons name='arrow-back' size={24} color='black' />
         </TouchableOpacity>
       ) : null}
-      {isLoading ? (
+      <ScrollView
+        style={{
+          flex: 1,
+        }}
+        scrollEnabled={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
-            justifyContent: 'center',
+            height: (Dimensions.get('window').height * 80) / 100,
             alignItems: 'center',
-            flex: 1,
-            paddingHorizontal: normalize(15),
+            position: 'relative',
           }}
         >
-          <ActivityIndicator size='large' color='black' />
-        </View>
-      ) : (
-        <View style={{ flex: 1, alignItems: 'center', position: 'relative' }}>
           <Image
             source={
               data?.attributes?.profile_image_path
@@ -199,7 +253,7 @@ const Profile = ({ navigation }) => {
             />
           </View>
         </View>
-      )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
