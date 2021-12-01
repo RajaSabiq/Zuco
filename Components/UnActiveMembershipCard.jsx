@@ -6,13 +6,14 @@ import {
   View,
   Linking,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { normalize } from '../Style/Responsive';
 
 const UnActiveMembershipCard = ({ setIsOpen, impersonate_url }) => {
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         justifyContent: 'space-evenly',
@@ -81,7 +82,7 @@ const UnActiveMembershipCard = ({ setIsOpen, impersonate_url }) => {
       >
         <Text style={{ color: '#fff' }}>Nu aankopen</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -47,27 +47,81 @@ const Tickets = ({ navigation }) => {
     getList();
   }, []);
 
+  const getMonth = ({ number }) => {
+    switch (number) {
+      case '1':
+        return 'Jan';
+      case '2':
+        return 'Feb';
+      case '3':
+        return 'Mar';
+      case '4':
+        return 'Apr';
+      case '5':
+        return 'May';
+      case '6':
+        return 'Jun';
+      case '7':
+        return 'Jul';
+      case '8':
+        return 'Aug';
+      case '9':
+        return 'Sep';
+      case '10':
+        return 'Oct';
+      case '11':
+        return 'Nov';
+      case '12':
+        return 'Dec';
+    }
+  };
+  const getDayName = ({ number }) => {
+    switch (number) {
+      case 1:
+        return 'Mon';
+      case 2:
+        return 'Tue';
+      case 3:
+        return 'Wed';
+      case 4:
+        return 'Thu';
+      case 5:
+        return 'Fri';
+      case 6:
+        return 'Sat';
+      case 7:
+        return 'Sun';
+    }
+  };
   const renderCard = ({ item }) => {
-    let date = new Date(
-      item.attributes.event?.attributes.created_at.split('-')[0],
-      item.attributes.event?.attributes.created_at.split('-')[1],
-      item.attributes.event?.attributes.created_at.split('-')[2].split(' ')[0]
+    let startDate = new Date(
+      item.attributes.event?.attributes.event_starts_at.split(' ')[0]
     );
-    const tempdate = date.toLocaleString('en-us', { month: 'short' });
-    const statdate = new Date(
-      item.attributes.event?.attributes.created_at.split('-')[0],
-      item.attributes.event?.attributes.created_at.split('-')[1],
-      item.attributes.event?.attributes.created_at.split('-')[2].split(' ')[0]
-    ).toLocaleString('en-us', { month: 'short' });
+    startDate.setTime(
+      startDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000
+    );
+    console.log(startDate.getMonth());
     return (
       <TicketCard
         eventImage={item.attributes.event?.attributes.banner_image_path}
-        eventName={item.attributes.product.attributes.name}
-        ticketType={item.attributes.product.attributes.category.type}
+        eventName={item.attributes.event.attributes.title}
+        ticketType={item.attributes.product.attributes.category.attributes.name}
         ticketPrice={item.attributes.product.attributes.price / 100}
-        date={tempdate.split(' ')[2]}
-        month={tempdate.split(' ')[1]}
-        eventDate={`${statdate.replace(' 00:00:00 ', ' ')} from ${
+        date={
+          item.attributes.event?.attributes.created_at
+            .split('-')[2]
+            .split(' ')[0]
+        }
+        month={getMonth({
+          number: item.attributes.event?.attributes.created_at.split('-')[1],
+        })}
+        eventDate={`${getDayName({ number: startDate.getDay() })} ${getMonth({
+          number: item.attributes.event?.attributes.created_at.split('-')[1],
+        })} ${
+          item.attributes.event?.attributes.created_at
+            .split('-')[2]
+            .split(' ')[0]
+        } ven ${
           item.attributes.event?.attributes.event_starts_at
             .split(' ')[1]
             .split(':')[0]
@@ -75,7 +129,7 @@ const Tickets = ({ navigation }) => {
           item.attributes.event?.attributes.event_starts_at
             .split(' ')[1]
             .split(':')[1]
-        } To ${
+        } tot ${
           item.attributes.event?.attributes.event_ends_at
             .split(' ')[1]
             .split(':')[0]
@@ -116,12 +170,26 @@ const Tickets = ({ navigation }) => {
       </Modal>
       <Text style={GlobalStyle.headerText}>Mijn Bestellingen</Text>
       <FlatList
+        style={{ flex: 1 }}
         data={ticketList}
         renderItem={renderCard}
         keyExtractor={(item) => item.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: normalize(14), fontWeight: 'bold' }}>
+              Geen bestellingen gevonden
+            </Text>
+          </View>
+        )}
       />
     </SafeAreaView>
   );

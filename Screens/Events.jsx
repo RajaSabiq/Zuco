@@ -27,6 +27,54 @@ const Events = () => {
     getList();
   }, []);
 
+  const getMonth = ({ number }) => {
+    switch (number) {
+      case 1:
+        return 'Jan';
+      case 2:
+        return 'Feb';
+      case 3:
+        return 'Mar';
+      case 4:
+        return 'Apr';
+      case 5:
+        return 'May';
+      case 6:
+        return 'Jun';
+      case 7:
+        return 'Jul';
+      case 8:
+        return 'Aug';
+      case 9:
+        return 'Sep';
+      case 10:
+        return 'Oct';
+      case 11:
+        return 'Nov';
+      case 12:
+        return 'Dec';
+    }
+  };
+
+  const getDayName = ({ number }) => {
+    switch (number) {
+      case 1:
+        return 'Mon';
+      case 2:
+        return 'Tue';
+      case 3:
+        return 'Wed';
+      case 4:
+        return 'Thu';
+      case 5:
+        return 'Fri';
+      case 6:
+        return 'Sat';
+      case 7:
+        return 'Sun';
+    }
+  };
+
   const getList = async () => {
     axios
       .get(`${PRODUCTIONSERVER}events`, {
@@ -50,17 +98,17 @@ const Events = () => {
       item.attributes.created_at.split('-')[1],
       item.attributes.created_at.split('-')[2].split(' ')[0]
     );
-    const tempdate = date.toLocaleString('en-us', { month: 'short' });
-    console.log(item.attributes.banner_image_path);
     return (
       <EventCard
         eventImage={item.attributes.banner_image_path}
         eventName={item.attributes.title}
-        date={tempdate.split(' ')[2]}
-        month={tempdate.split(' ')[1]}
-        eventDate={`${tempdate.replace(' 00:00:00 ', ' ')} from ${
+        date={date.getDate()}
+        month={getMonth({ number: date.getMonth() })}
+        eventDate={`${getDayName({ number: date.getDay() })} ${getMonth({
+          number: date.getMonth(),
+        })} ${date.getDate()} ven ${
           item.attributes.event_starts_at.split(' ')[1].split(':')[0]
-        }:${item.attributes.event_starts_at.split(' ')[1].split(':')[1]} To ${
+        }:${item.attributes.event_starts_at.split(' ')[1].split(':')[1]} tot ${
           item.attributes.event_ends_at.split(' ')[1].split(':')[0]
         }:${item.attributes.event_ends_at.split(' ')[1].split(':')[1]}`}
         fblink={item.attributes.properties.social.facebook_url}
