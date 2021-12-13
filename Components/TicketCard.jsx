@@ -18,10 +18,8 @@ const TicketCard = ({
   eventImage,
   eventDate,
   eventName,
-  ticketType,
-  tickDateTime,
-  ticketPrice,
   navigation,
+  value,
 }) => {
   const [{ impersonate_url }] = useStateValue();
   return (
@@ -45,24 +43,35 @@ const TicketCard = ({
         </View>
       </View>
       <Text style={styles.txSubHeader}>Tickets</Text>
-      <View style={styles.bottomContainer}>
-        <Image source={require('../assets/ticket.png')} style={styles.ticket} />
-        <View>
-          <Text style={styles.ticketType}>{ticketType}</Text>
-          <Text style={styles.txticketDate}>{tickDateTime}</Text>
-        </View>
-        <Text style={styles.txTicket}>€{ticketPrice}</Text>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Profile');
-          }}
-        >
+      {value.map((item, index) => (
+        <View key={index} style={styles.bottomContainer}>
           <Image
-            source={require('../assets/qrcodescangold.png')}
+            source={require('../assets/ticket.png')}
             style={styles.ticket}
           />
-        </TouchableOpacity>
-      </View>
+          <View>
+            <Text style={styles.ticketType}>
+              {item.attributes.product.attributes.category.attributes.name}
+            </Text>
+            <Text style={styles.txticketDate}>
+              {item.attributes.product.attributes?.created_at}
+            </Text>
+          </View>
+          <Text style={styles.txTicket}>
+            €{item.attributes.product.attributes.price / 100}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Profile');
+            }}
+          >
+            <Image
+              source={require('../assets/qrcodescangold.png')}
+              style={styles.ticket}
+            />
+          </TouchableOpacity>
+        </View>
+      ))}
     </View>
   );
 };

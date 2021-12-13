@@ -98,15 +98,18 @@ const Events = () => {
       item.attributes.created_at.split('-')[1],
       item.attributes.created_at.split('-')[2].split(' ')[0]
     );
+    let startDate = new Date(item.attributes.event_starts_at.split(' ')[0]);
     return (
       <EventCard
         eventImage={item.attributes.banner_image_path}
         eventName={item.attributes.title}
-        date={date.getDate()}
-        month={getMonth({ number: date.getMonth() })}
-        eventDate={`${getDayName({ number: date.getDay() })} ${getMonth({
-          number: date.getMonth(),
-        })} ${date.getDate()} ven ${
+        date={startDate.getDate()}
+        month={getMonth({ number: startDate.getMonth() + 1 })}
+        eventDate={`${getDayName({
+          number: startDate.getDay(),
+        })} ${getMonth({
+          number: startDate.getMonth() + 1,
+        })} ${startDate.getDate()} van ${
           item.attributes.event_starts_at.split(' ')[1].split(':')[0]
         }:${item.attributes.event_starts_at.split(' ')[1].split(':')[1]} tot ${
           item.attributes.event_ends_at.split(' ')[1].split(':')[0]

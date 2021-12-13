@@ -38,7 +38,16 @@ const Tickets = ({ navigation }) => {
       })
       .then((res) => {
         setRefreshing(false);
-        setTicketList(res.data.data);
+        const { data } = res;
+        const groupData = data.data.reduce((r, a) => {
+          r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
+          return r;
+        }, {});
+        const groupDataArray = Object.keys(groupData).map((key) => ({
+          key,
+          value: groupData[key],
+        }));
+        setTicketList(groupDataArray);
       });
   };
 
@@ -93,53 +102,60 @@ const Tickets = ({ navigation }) => {
         return 'Sun';
     }
   };
+
   const renderCard = ({ item }) => {
     let startDate = new Date(
-      item.attributes.event?.attributes.event_starts_at.split(' ')[0]
+      item.value[0].attributes.event?.attributes.event_starts_at.split(' ')[0]
     );
     startDate.setTime(
       startDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000
     );
-    console.log(startDate.getMonth());
     return (
       <TicketCard
-        eventImage={item.attributes.event?.attributes.banner_image_path}
-        eventName={item.attributes.event.attributes.title}
-        ticketType={item.attributes.product.attributes.category.attributes.name}
-        ticketPrice={item.attributes.product.attributes.price / 100}
+        eventImage={
+          item.value[0].attributes.event?.attributes.banner_image_path
+        }
+        eventName={item.value[0].attributes.event.attributes.title}
         date={
-          item.attributes.event?.attributes.created_at
+          item.value[0].attributes.event?.attributes.event_starts_at
             .split('-')[2]
             .split(' ')[0]
         }
         month={getMonth({
-          number: item.attributes.event?.attributes.created_at.split('-')[1],
+          number:
+            item.value[0].attributes.event?.attributes.event_starts_at.split(
+              '-'
+            )[1],
         })}
         eventDate={`${getDayName({ number: startDate.getDay() })} ${getMonth({
-          number: item.attributes.event?.attributes.created_at.split('-')[1],
+          number:
+            item.value[0].attributes.event?.attributes.event_starts_at.split(
+              '-'
+            )[1],
         })} ${
-          item.attributes.event?.attributes.created_at
+          item.value[0].attributes.event?.attributes.event_starts_at
             .split('-')[2]
             .split(' ')[0]
-        } ven ${
-          item.attributes.event?.attributes.event_starts_at
+        } van ${
+          item.value[0].attributes.event?.attributes.event_starts_at
             .split(' ')[1]
             .split(':')[0]
         }:${
-          item.attributes.event?.attributes.event_starts_at
+          item.value[0].attributes.event?.attributes.event_starts_at
             .split(' ')[1]
             .split(':')[1]
         } tot ${
-          item.attributes.event?.attributes.event_ends_at
+          item.value[0].attributes.event?.attributes.event_ends_at
             .split(' ')[1]
             .split(':')[0]
         }:${
-          item.attributes.event?.attributes.event_ends_at
+          item.value[0].attributes.event?.attributes.event_ends_at
             .split(' ')[1]
             .split(':')[1]
         }`}
-        tickDateTime={item.attributes.product.attributes?.created_at}
+        tickDateTime={item.value[0].attributes.product.attributes?.created_at}
         navigation={navigation}
+        value={item.value}
       />
     );
   };
@@ -173,7 +189,6 @@ const Tickets = ({ navigation }) => {
         style={{ flex: 1 }}
         data={ticketList}
         renderItem={renderCard}
-        keyExtractor={(item) => item.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
