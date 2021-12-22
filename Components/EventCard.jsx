@@ -7,9 +7,7 @@ import {
   Linking,
   TouchableOpacity,
 } from 'react-native';
-import { Button } from 'react-native-paper';
 import { normalize } from '../Style/Responsive';
-import { Entypo } from '@expo/vector-icons';
 import Calender from './Calender';
 import { useStateValue } from '../ContextApi/SateProvider';
 
@@ -22,6 +20,7 @@ const EventCard = ({
   fblink,
   ticketHandler,
   url,
+  navigation,
 }) => {
   const [{ impersonate_url, isActiveMemberShip }] = useStateValue();
   return (
@@ -58,7 +57,10 @@ const EventCard = ({
         <TouchableOpacity
           onPress={() => {
             if (isActiveMemberShip)
-              Linking.openURL(impersonate_url + '&redirect=' + url);
+              navigation.push('EventProduct', {
+                id: '14',
+              });
+            // Linking.openURL(impersonate_url + '&redirect=' + url);
             else ticketHandler(true);
           }}
           style={[styles.btn, { backgroundColor: '#B28A17' }]}

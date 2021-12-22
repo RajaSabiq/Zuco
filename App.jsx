@@ -10,6 +10,7 @@ import { useFonts } from 'expo-font';
 import BottomNavigation from './Routes/BottomNavigation';
 import { StateProvider } from './ContextApi/SateProvider';
 import reducer, { initialState } from './ContextApi/reducer';
+import EventProducts from './Screens/EventProducts';
 
 const mainStack = createStackNavigator();
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
           screenOptions={{ headerShown: false }}
         >
           <mainStack.Screen name='login' component={Login} />
+          <mainStack.Screen name='EventProduct' component={EventProducts} />
           <mainStack.Screen name='Home' component={BottomNavigation} />
         </mainStack.Navigator>
       </NavigationContainer>

@@ -17,7 +17,7 @@ import { useStateValue } from '../ContextApi/SateProvider';
 import { normalize } from '../Style/Responsive';
 import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
 
-const Events = () => {
+const Events = ({ navigation }) => {
   const [events, setEvents] = React.useState([]);
   const [refreshing, setRefreshing] = React.useState(true);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -85,6 +85,9 @@ const Events = () => {
       .then((res) => {
         setRefreshing(false);
         setEvents(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
   const onRefresh = useCallback(() => {
@@ -93,11 +96,6 @@ const Events = () => {
   }, []);
 
   const renderCard = ({ item }) => {
-    let date = new Date(
-      item.attributes.created_at.split('-')[0],
-      item.attributes.created_at.split('-')[1],
-      item.attributes.created_at.split('-')[2].split(' ')[0]
-    );
     let startDate = new Date(item.attributes.event_starts_at.split(' ')[0]);
     return (
       <EventCard
@@ -117,6 +115,7 @@ const Events = () => {
         fblink={item.attributes.properties.social.facebook_url}
         ticketHandler={setIsOpen}
         url={item.attributes.url}
+        navigation={navigation}
       />
     );
   };
