@@ -12,6 +12,7 @@ import Calender from './Calender';
 import { useStateValue } from '../ContextApi/SateProvider';
 
 const EventCard = ({
+  id,
   date,
   month,
   eventImage,
@@ -58,9 +59,13 @@ const EventCard = ({
           onPress={() => {
             if (isActiveMemberShip)
               navigation.push('EventProduct', {
-                id: '14',
+                id: 14,
+                eventImage,
+                eventName,
+                eventDate,
+                date,
+                month,
               });
-            // Linking.openURL(impersonate_url + '&redirect=' + url);
             else ticketHandler(true);
           }}
           style={[styles.btn, { backgroundColor: '#B28A17' }]}

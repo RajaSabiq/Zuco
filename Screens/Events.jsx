@@ -99,6 +99,7 @@ const Events = ({ navigation }) => {
     let startDate = new Date(item.attributes.event_starts_at.split(' ')[0]);
     return (
       <EventCard
+        id={item.id}
         eventImage={item.attributes.banner_image_path}
         eventName={item.attributes.title}
         date={startDate.getDate()}

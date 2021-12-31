@@ -1,16 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
 import Login from './Screens/Login';
-import Profile from './Screens/Profile';
 import { useFonts } from 'expo-font';
 import BottomNavigation from './Routes/BottomNavigation';
 import { StateProvider } from './ContextApi/SateProvider';
 import reducer, { initialState } from './ContextApi/reducer';
-import EventProducts from './Screens/EventProducts';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './Store/Store';
+import AddToCart from './Screens/AddToCart';
 
 const mainStack = createStackNavigator();
 export default function App() {
@@ -22,17 +21,21 @@ export default function App() {
     return null;
   }
   return (
-    <StateProvider initialState={initialState} reducer={reducer}>
-      <NavigationContainer>
-        <mainStack.Navigator
-          initialRouteName='login'
-          screenOptions={{ headerShown: false }}
-        >
-          <mainStack.Screen name='login' component={Login} />
-          <mainStack.Screen name='EventProduct' component={EventProducts} />
-          <mainStack.Screen name='Home' component={BottomNavigation} />
-        </mainStack.Navigator>
-      </NavigationContainer>
-    </StateProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <StateProvider initialState={initialState} reducer={reducer}>
+          <NavigationContainer>
+            <mainStack.Navigator
+              initialRouteName='login'
+              screenOptions={{ headerShown: false }}
+            >
+              <mainStack.Screen name='login' component={Login} />
+              <mainStack.Screen name='Home' component={BottomNavigation} />
+              <mainStack.Screen name='AddToCart' component={AddToCart} />
+            </mainStack.Navigator>
+          </NavigationContainer>
+        </StateProvider>
+      </PersistGate>
+    </Provider>
   );
 }

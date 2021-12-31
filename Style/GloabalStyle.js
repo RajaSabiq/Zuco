@@ -29,4 +29,7 @@ export const GlobalStyle = StyleSheet.create({
     marginLeft: normalize(25),
     marginBottom: normalize(10),
   },
+  row: {
+    flexDirection: 'column',
+  },
 });

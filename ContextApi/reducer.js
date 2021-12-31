@@ -13,6 +13,7 @@ const reducer = (state, action) => {
         isActiveMemberShip: action.isActiveMemberShip,
         impersonate_url: action.impersonate_url,
       };
+    // case
     default:
       return state;
   }

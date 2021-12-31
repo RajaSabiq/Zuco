@@ -34,6 +34,8 @@
     "react-native-snackbar-component": "^1.1.12",
     "react-native-vector-icons": "^9.0.0",
     "react-native-web": "~0.13.12",
+    "react-redux": "^7.2.6",
+    "redux-persist": "^6.0.0",
     "watchman": "^1.0.0"
   },
   "devDependencies": {

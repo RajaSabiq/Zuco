@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Modal,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import TicketCard from '../Components/TicketCard';
@@ -23,6 +24,17 @@ const Tickets = ({ navigation }) => {
   const [refreshing, setRefreshing] = React.useState(true);
   const [isOpen, setIsOpen] = React.useState(false);
   const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        navigation.goBack();
+        return true;
+      }
+    );
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     getList();

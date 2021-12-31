@@ -1,13 +1,25 @@
 import axios from 'axios';
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  BackHandler,
+} from 'react-native';
 import Calender from '../Components/Calender';
 import { normalize } from '../Style/Responsive';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
+import { useSelector, useDispatch } from 'react-redux';
+import { addToCart, removeFromCart } from '../Store/actions';
+import addtoBasket from '../assets/cart.png';
 
-const EventProducts = ({ route }) => {
-  const [events, setEvents] = React.useState([]);
+const EventProducts = ({ route, navigation }) => {
+  const [events, setEvents] = useState([]);
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
   useEffect(() => {
     axios
       .get(`${PRODUCTIONSERVER}events/${route.params.id}/products`, {
@@ -16,36 +28,67 @@ const EventProducts = ({ route }) => {
         },
       })
       .then((res) => {
-        console.log({ data: res.data });
-        setEvents(res.data.data);
+        const { data } = res;
+        const groupData = data.data.reduce((r, a) => {
+          r[a.attributes.category.id] = [
+            ...(r[a.attributes.category.id] || []),
+            a,
+          ];
+          return r;
+        }, {});
+        const groupDataArray = Object.keys(groupData).map((key) => ({
+          key,
+          value: groupData[key],
+        }));
+        console.log(groupDataArray);
+        setEvents(groupDataArray);
       });
   }, []);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        navigation.goBack();
+        return true;
+      }
+    );
+    return () => backHandler.remove();
+  }, []);
+
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <Image
-          source={{
-            uri: 'http://app.zuconightclub.com/storage/YS45qajEdfrrxpP46s5Di1p8VSZZvd31SmL2BHAt.jpg',
-          }}
-          style={styles.imageContainer}
+    <View style={styles.container}>
+      <Image
+        source={{
+          uri: route.params.eventImage,
+        }}
+        style={[styles.imageContainer]}
+      />
+      <View style={styles.detailContainer}>
+        <Calender
+          scale={55}
+          marginTop={-10}
+          fontSizeMonth={14}
+          fontSizeDate={25}
+          borderRadius={17}
+          date={route.params.date}
+          month={route.params.month}
         />
-        <View style={styles.detailContainer}>
-          <Calender
-            scale={55}
-            marginTop={-10}
-            fontSizeMonth={14}
-            fontSizeDate={25}
-            borderRadius={17}
-            date={12}
-            month={'Dec'}
-          />
-          <View style={styles.eventTextContainer}>
-            <Text style={styles.eventDetail}>{'21-5-2021'}</Text>
-            <Text style={styles.eventName}>{'TESTING EVENT'}</Text>
-          </View>
+        <View style={styles.eventTextContainer}>
+          <Text style={styles.eventDetail}>{route.params.eventDate}</Text>
+          <Text style={styles.eventName}>{route.params.eventName}</Text>
         </View>
-        {events.map((item, index) => (
-          <>
+      </View>
+      <FlatList
+        data={events}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item, index }) => (
+          <View
+            style={{
+              paddingHorizontal: normalize(25),
+            }}
+            key={index}
+          >
             <Text
               style={[
                 styles.eventName,
@@ -54,34 +97,99 @@ const EventProducts = ({ route }) => {
                 },
               ]}
             >
-              Standard
+              {item.value[0].attributes.category.attributes.name}
             </Text>
-            <View style={styles.bottomContainer}>
-              <Image
-                source={require('../assets/ticket.png')}
-                style={styles.ticket}
-              />
-              <View>
-                <Text style={styles.ticketType}>{'Ticket Type'}</Text>
-                <Text style={styles.txticketDate}>{'21-5-2021'}</Text>
-              </View>
-              <Text style={styles.txTicket}>€ {'10'}</Text>
-              <TouchableOpacity
-                style={styles.addToBasket}
-                onPress={() => {
-                  navigation.navigate('Profile');
-                }}
-              >
+            {item.value.map((product) => (
+              <View style={styles.bottomContainer}>
                 <Image
-                  source={require('../assets/cart.png')}
-                  style={{ width: normalize(19), height: normalize(17) }}
+                  source={require('../assets/ticket.png')}
+                  style={styles.ticket}
                 />
-              </TouchableOpacity>
-            </View>
-          </>
-        ))}
-      </View>
-    </SafeAreaView>
+                <View
+                  style={{
+                    width: normalize(110),
+                  }}
+                >
+                  <Text style={styles.ticketType}>
+                    {product.attributes.name}
+                  </Text>
+                  <Text style={styles.txticketDate}>
+                    {product.attributes.description}
+                  </Text>
+                </View>
+                <Text style={styles.txTicket}>
+                  €{' '}
+                  {(+product.attributes.price +
+                    +product.attributes.handling_cost) /
+                    100}
+                </Text>
+                {+product.attributes.availability >= 1 ? (
+                  <TouchableOpacity
+                    disabled={cart.some(
+                      (cart) =>
+                        cart.product.id !== product.id &&
+                        cart.id === route.params.id
+                    )}
+                    style={[
+                      styles.addToBasket,
+                      {
+                        backgroundColor: cart.some(
+                          (cart) =>
+                            cart.product.id !== product.id &&
+                            cart.id === route.params.id
+                        )
+                          ? '#979797'
+                          : '#B28A17',
+                      },
+                    ]}
+                    onPress={() => {
+                      if (
+                        cart.some(
+                          (cart) =>
+                            cart.product.id !== product.id &&
+                            cart.id !== route.params.id
+                        ) ||
+                        cart.length === 0
+                      ) {
+                        dispatch(
+                          addToCart({
+                            id: route.params.id,
+                            product,
+                            eventName: route.params.eventName,
+                            eventDate: route.params.eventDate,
+                            eventImage: route.params.eventImage,
+                          })
+                        );
+                      } else {
+                        dispatch(removeFromCart(product));
+                      }
+                    }}
+                  >
+                    <Image
+                      source={require('../assets/cart.png')}
+                      style={{ width: normalize(19), height: normalize(17) }}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <Text>SOLD OUT</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+      />
+      {cart.length > 0 && (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('AddToCart');
+          }}
+          style={styles.addToBasketBtn}
+        >
+          <Text style={styles.basketCount}>{cart.length}</Text>
+          <Image source={addtoBasket} style={styles.basketImage} />
+        </TouchableOpacity>
+      )}
+    </View>
   );
 };
 
@@ -89,18 +197,18 @@ export default EventProducts;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: normalize(25),
-    paddingTop: normalize(25),
-    marginBottom: normalize(15),
+    flex: 1,
+    paddingTop: normalize(45),
   },
   imageContainer: {
     borderRadius: 10,
-    width: '100%',
+    width: '85%',
     height: undefined,
     aspectRatio: 2,
+    alignSelf: 'center',
   },
   detailContainer: {
-    paddingHorizontal: 5,
+    paddingHorizontal: normalize(30),
     flexDirection: 'row',
   },
 
@@ -183,5 +291,34 @@ const styles = StyleSheet.create({
     borderRadius: normalize(10),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  basketImage: {
+    width: 27,
+    height: 25,
+  },
+  addToBasketBtn: {
+    position: 'absolute',
+    bottom: normalize(10),
+    right: normalize(10),
+    backgroundColor: '#B28A17',
+    width: normalize(45),
+    height: normalize(45),
+    borderRadius: normalize(100),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  basketCount: {
+    position: 'absolute',
+    padding: normalize(5),
+    backgroundColor: '#000',
+    color: '#fff',
+    borderRadius: normalize(100),
+    top: -10,
+    fontWeight: 'bold',
+    fontSize: normalize(12),
+    right: -normalize(5),
+    width: normalize(23),
+    height: normalize(23),
+    textAlign: 'center',
   },
 });
