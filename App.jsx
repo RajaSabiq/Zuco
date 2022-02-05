@@ -10,6 +10,9 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './Store/Store';
 import AddToCart from './Screens/AddToCart';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
+import addtoBasket from './assets/cart.png';
+import MainScreenAfterLogin from './Screens/MainScreenAfterLogin';
 
 const mainStack = createStackNavigator();
 export default function App() {
@@ -17,6 +20,7 @@ export default function App() {
     Poppins: require('./assets/fonts/Poppins.ttf'),
     DMSans: require('./assets/fonts/DMSans.ttf'),
   });
+
   if (!loaded) {
     return null;
   }
@@ -30,8 +34,7 @@ export default function App() {
               screenOptions={{ headerShown: false }}
             >
               <mainStack.Screen name='login' component={Login} />
-              <mainStack.Screen name='Home' component={BottomNavigation} />
-              <mainStack.Screen name='AddToCart' component={AddToCart} />
+              <mainStack.Screen name='Home' component={MainScreenAfterLogin} />
             </mainStack.Navigator>
           </NavigationContainer>
         </StateProvider>

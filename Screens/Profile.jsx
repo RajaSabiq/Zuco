@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -14,43 +14,61 @@ import {
   Dimensions,
 } from 'react-native';
 import { normalize } from '../Style/Responsive';
-import axios from 'axios';
-import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Device from 'expo-device';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import * as Brightness from 'expo-brightness';
 import { useStateValue } from '../ContextApi/SateProvider';
-import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
+import * as ImagePicker from 'expo-image-picker';
+import Axios from '../axios/axios';
+import { BlurView } from 'expo-blur';
 
 const Profile = ({ navigation }) => {
   const [state, dispatch] = useStateValue();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
+  var timer = useRef(null);
 
   const onRefresh = React.useCallback(async () => {
     setIsLoading(true);
-    const value = await AsyncStorage.getItem('user_id');
-    axios
-      .get(`${PRODUCTIONSERVER}user/${value}`, {
-        headers: {
-          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-        },
-      })
-      .then((res) => {
-        setIsLoading(false);
-        setData(res.data.data);
-        dispatch({
-          type: 'SET_MEMBERSHIP',
-          isActiveMemberShip:
-            res.data.data.relationships['active-membership'] !== undefined,
-          impersonate_url: res.data.data.attributes.impersonate_url,
-        });
-      });
+    clearTimeout(timer);
+    selfCalling();
   }, []);
+
+  const [openPhotoDialog, setOpenPhotoDialog] = useState(false);
+
+  const pickImage = async () => {
+    setOpenPhotoDialog(false);
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      const { uri, type } = result;
+
+      const value = await AsyncStorage.getItem('user_id');
+      const formData = new FormData();
+      formData.append('data[type]', 'user');
+      formData.append('data[attributes][profile_image]', {
+        uri,
+        name: 'profile_image' + uri.split('/').pop(),
+        type: 'image/jpeg',
+      });
+
+      Axios.post(`user/${value}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then((res) => {
+        setIsLoading(true);
+        clearTimeout(timer);
+        selfCalling();
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -65,53 +83,23 @@ const Profile = ({ navigation }) => {
     setIsLoading(true);
     selfCalling();
   }, []);
-  const backAction = () => {
-    Alert.alert('Opgelet!', 'Zeker dat je wilt afsluiten?', [
-      {
-        text: ' Log Out',
-        onPress: async () => {
-          await AsyncStorage.clear().then(() => {
-            navigation.replace('login');
-          });
-        },
-        style: 'cancel',
-      },
-      {
-        text: Device.osName !== 'Android' ? 'NO' : 'YES',
-        onPress: () => BackHandler.exitApp(),
-      },
-    ]);
-    return true;
-  };
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-    return () => backHandler.remove();
-  }, []);
 
   const selfCalling = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    axios
-      .get(`${PRODUCTIONSERVER}user/${value}`, {
-        headers: {
-          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-        },
-      })
-      .then((res) => {
-        setIsLoading(false);
-        setData(res.data.data);
-        dispatch({
-          type: 'SET_MEMBERSHIP',
-          isActiveMemberShip:
-            res.data.data.relationships['active-membership'] !== undefined,
-          impersonate_url: res.data.data.attributes.impersonate_url,
-        });
-        setTimeout(() => {
-          selfCalling();
-        }, parseInt(res.data.data.relationships['qr-code'].data.attributes['expires_in']));
+    Axios.get(`user/${value}`).then((res) => {
+      setIsLoading(false);
+      setData(res.data.data);
+      dispatch({
+        type: 'SET_MEMBERSHIP',
+        isActiveMemberShip:
+          res.data.data.relationships['active-membership'] !== undefined,
+        impersonate_url: res.data.data.attributes.impersonate_url,
       });
+      timer = setTimeout(() => {
+        clearTimeout(timer);
+        selfCalling();
+      }, parseInt(res.data.data.relationships['qr-code'].data.attributes['expires_in']));
+    });
   };
   return (
     <SafeAreaView
@@ -121,39 +109,87 @@ const Profile = ({ navigation }) => {
         justifyContent: 'space-evenly',
       }}
     >
-      {!isActiveMemberShip && (
-        <TouchableOpacity
-          onPress={() => {
-            setIsOpen(true);
-          }}
-          style={{
-            backgroundColor: '#B28A17',
-            padding: normalize(10),
-            borderBottomLeftRadius: normalize(7),
-            borderBottomRightRadius: normalize(7),
-          }}
+      <Modal visible={openPhotoDialog} animationType='fade' transparent>
+        <BlurView
+          tint='dark'
+          intensity={100}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
-          <Text style={{ color: '#fff', textAlign: 'center' }}>
-            Opgelet! U heeft geen actief membership. Activeer hier.
-          </Text>
-        </TouchableOpacity>
-      )}
-      <Modal visible={isOpen} transparent={false} animationType='slide'>
-        <UnActiveMembershipCard
-          impersonate_url={impersonate_url}
-          setIsOpen={setIsOpen}
-        />
+          <View
+            style={{
+              backgroundColor: '#fff',
+              width: '90%',
+              padding: normalize(20),
+              borderRadius: normalize(10),
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(17),
+                fontWeight: 'bold',
+                color: '#B28A17',
+              }}
+            >
+              Profielfoto Wijzigen
+            </Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: normalize(14),
+                color: '#5C5C5C',
+                fontWeight: '300',
+              }}
+            >
+              Wenst u uw profielfoto toe te voegen of te wijzigen?
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '100%',
+                marginTop: normalize(15),
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#000',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => setOpenPhotoDialog(false)}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Terug
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#B28A17',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={pickImage}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Wijzig
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
       </Modal>
-      {Device.osName !== 'Android' ? (
-        <TouchableOpacity
-          style={{
-            paddingHorizontal: normalize(15),
-          }}
-          onPress={backAction}
-        >
-          <Ionicons name='arrow-back' size={24} color='black' />
-        </TouchableOpacity>
-      ) : null}
+
       <ScrollView
         style={{
           flex: 1,
@@ -165,26 +201,27 @@ const Profile = ({ navigation }) => {
       >
         <View
           style={{
-            height: (Dimensions.get('window').height * 80) / 100,
+            height: (Dimensions.get('window').height * 70) / 100,
             alignItems: 'center',
             position: 'relative',
           }}
         >
-          <Image
-            source={
-              data?.attributes?.profile_image_path
-                ? { uri: data?.attributes?.profile_image_path }
-                : require('../assets/icon.png')
-            }
-            style={{
-              width: normalize(130),
-              height: normalize(130),
-              maxHeight: 220,
-              maxWidth: 220,
-              borderRadius: 20,
-              marginTop: 10,
-            }}
-          />
+          <TouchableOpacity onPress={() => setOpenPhotoDialog(true)}>
+            <Image
+              source={
+                data?.attributes?.profile_image_path
+                  ? { uri: data?.attributes?.profile_image_path }
+                  : require('../assets/icon.png')
+              }
+              style={{
+                width: normalize(130),
+                height: normalize(130),
+                maxHeight: 220,
+                maxWidth: 220,
+                borderRadius: 20,
+              }}
+            />
+          </TouchableOpacity>
           <Text
             style={{
               fontFamily: 'Poppins',

@@ -1,7 +1,9 @@
 import React from 'react';
 import {
+  FlatList,
   Image,
   Linking,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,8 +22,9 @@ const TicketCard = ({
   eventName,
   navigation,
   value,
+  refreshing,
+  onRefresh,
 }) => {
-  const [{ impersonate_url }] = useStateValue();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -43,41 +46,44 @@ const TicketCard = ({
         </View>
       </View>
       <Text style={styles.txSubHeader}>Tickets</Text>
-      {value.map((item, index) => (
-        <View key={index} style={styles.bottomContainer}>
+      {/* <FlatList
+        scrollEnabled={false}
+        data={value}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item, index }) => ( */}
+      <View style={styles.bottomContainer}>
+        <Image source={require('../assets/ticket.png')} style={styles.ticket} />
+        <View>
+          <Text style={styles.ticketType}>
+            {value[0].attributes.product.attributes.category.attributes.name}
+          </Text>
+          <Text style={styles.txticketDate}>
+            {value[0].attributes?.created_at}
+          </Text>
+        </View>
+        <Text style={styles.txTicket}>
+          €{value[0].attributes.product.attributes.price / 100}
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Profile');
+          }}
+        >
           <Image
-            source={require('../assets/ticket.png')}
+            source={require('../assets/qrcodescangold.png')}
             style={styles.ticket}
           />
-          <View>
-            <Text style={styles.ticketType}>
-              {item.attributes.product.attributes.category.attributes.name}
-            </Text>
-            <Text style={styles.txticketDate}>
-              {item.attributes.product.attributes?.created_at}
-            </Text>
-          </View>
-          <Text style={styles.txTicket}>
-            €{item.attributes.product.attributes.price / 100}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Profile');
-            }}
-          >
-            <Image
-              source={require('../assets/qrcodescangold.png')}
-              style={styles.ticket}
-            />
-          </TouchableOpacity>
-        </View>
-      ))}
+        </TouchableOpacity>
+      </View>
+      {/* )}
+      /> */}
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: normalize(25),
+    marginHorizontal: normalize(25),
+    marginTop: normalize(25),
   },
   imageContainer: {
     borderRadius: 10,

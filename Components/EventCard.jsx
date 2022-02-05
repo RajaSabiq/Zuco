@@ -59,7 +59,7 @@ const EventCard = ({
           onPress={() => {
             if (isActiveMemberShip)
               navigation.push('EventProduct', {
-                id: 14,
+                id: id,
                 eventImage,
                 eventName,
                 eventDate,

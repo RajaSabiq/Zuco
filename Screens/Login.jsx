@@ -18,13 +18,12 @@ import RegistrationComponent from '../Components/RegistrationComponent';
 import { normalize } from '../Style/Responsive';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { Entypo } from '@expo/vector-icons';
-import axios from 'axios';
 import { BlurView } from 'expo-blur';
 import { Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Brightness from 'expo-brightness';
-import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import { useStateValue } from '../ContextApi/SateProvider';
+import Axios from '../axios/axios';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -52,7 +51,9 @@ const Login = ({ navigation }) => {
       try {
         const value = await AsyncStorage.getItem('user_id');
         if (value !== null) {
-          navigation.replace('Home');
+          navigation.replace('Home', {
+            screen: 'HomeTab',
+          });
         } else {
           setIsLoading(true);
         }
@@ -66,26 +67,15 @@ const Login = ({ navigation }) => {
     setIsWorking(true);
     if (isLogin) {
       if (email && password) {
-        axios
-          .post(
-            `${PRODUCTIONSERVER}auth/login`,
-            {
-              data: {
-                type: 'login',
-                attributes: {
-                  email: email,
-                  password: password,
-                },
-              },
+        Axios.post(`auth/login`, {
+          data: {
+            type: 'login',
+            attributes: {
+              email: email,
+              password: password,
             },
-            {
-              headers: {
-                Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-            }
-          )
+          },
+        })
           .then(async (res) => {
             setIsWorking(false);
             if (res.data?.data) {
@@ -97,7 +87,9 @@ const Login = ({ navigation }) => {
                 'user_id',
                 res.data.data.attributes.user_id.toString()
               );
-              navigation.replace('Home');
+              navigation.replace('Home', {
+                screen: 'HomeTab',
+              });
               setEmail('');
               setPassword('');
             }
@@ -114,31 +106,19 @@ const Login = ({ navigation }) => {
       }
     } else {
       if (email) {
-        axios
-          .post(
-            `${PRODUCTIONSERVER}auth/register`,
-            {
-              data: {
-                type: 'register',
-                attributes: {
-                  email: email,
-                },
-              },
+        Axios.post(`auth/register`, {
+          data: {
+            type: 'register',
+            attributes: {
+              email: email,
             },
-            {
-              headers: {
-                Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-          .then(() => {
-            setEmail('');
-            setIsWorking(false);
-            setVisible(true);
-            setMessage(`Send an email to :${email}`);
-          });
+          },
+        }).then(() => {
+          setEmail('');
+          setIsWorking(false);
+          setVisible(true);
+          setMessage(`Send an email to :${email}`);
+        });
       } else {
         setIsWorking(false);
         setVisible(true);
@@ -236,25 +216,14 @@ const Login = ({ navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     setIsForgetWorking(true);
-                    axios
-                      .post(
-                        `${PRODUCTIONSERVER}auth/forgot-password`,
-                        {
-                          data: {
-                            type: 'forgot-password',
-                            attributes: {
-                              email: email,
-                            },
-                          },
+                    Axios.post(`auth/forgot-password`, {
+                      data: {
+                        type: 'forgot-password',
+                        attributes: {
+                          email: email,
                         },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                          },
-                        }
-                      )
+                      },
+                    })
                       .then(() => {
                         setEmail('');
                         setPassword('');

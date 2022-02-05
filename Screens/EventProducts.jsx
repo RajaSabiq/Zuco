@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -7,57 +6,137 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  BackHandler,
+  Modal,
 } from 'react-native';
 import Calender from '../Components/Calender';
 import { normalize } from '../Style/Responsive';
-import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart, removeFromCart } from '../Store/actions';
-import addtoBasket from '../assets/cart.png';
+import { BlurView } from 'expo-blur';
+import Axios from '../axios/axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Linking from 'expo-linking';
 
 const EventProducts = ({ route, navigation }) => {
   const [events, setEvents] = useState([]);
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
+  const [alreadyAdded, setAlreadyAdded] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
-    axios
-      .get(`${PRODUCTIONSERVER}events/${route.params.id}/products`, {
-        headers: {
-          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-        },
-      })
-      .then((res) => {
-        const { data } = res;
-        const groupData = data.data.reduce((r, a) => {
-          r[a.attributes.category.id] = [
-            ...(r[a.attributes.category.id] || []),
-            a,
-          ];
-          return r;
-        }, {});
-        const groupDataArray = Object.keys(groupData).map((key) => ({
-          key,
-          value: groupData[key],
-        }));
-        console.log(groupDataArray);
-        setEvents(groupDataArray);
-      });
+    Axios.get(`events/${route.params.id}/products`).then((res) => {
+      const { data } = res;
+      const groupData = data.data.reduce((r, a) => {
+        r[a.attributes.category.id] = [
+          ...(r[a.attributes.category.id] || []),
+          a,
+        ];
+        return r;
+      }, {});
+      const groupDataArray = Object.keys(groupData).map((key) => ({
+        key,
+        value: groupData[key],
+      }));
+      setEvents(groupDataArray);
+    });
+    getList();
   }, []);
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        navigation.goBack();
-        return true;
-      }
-    );
-    return () => backHandler.remove();
-  }, []);
+  const getList = async () => {
+    const value = await AsyncStorage.getItem('user_id');
+    Axios.get(`user/${value}/tickets`).then((res) => {
+      const { data } = res;
+      setAlreadyAdded(
+        data.data.some((item) => item.attributes.product.id === route.params.id)
+      );
+    });
+  };
 
   return (
     <View style={styles.container}>
+      <Modal visible={openModal} animationType='fade' transparent>
+        <BlurView
+          tint='dark'
+          intensity={100}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <View
+            style={{
+              backgroundColor: '#fff',
+              width: '90%',
+              padding: normalize(20),
+              borderRadius: normalize(10),
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(17),
+                fontWeight: 'bold',
+                color: '#B28A17',
+              }}
+            >
+              Opgelet!
+            </Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: normalize(14),
+                color: '#5C5C5C',
+                fontWeight: '300',
+              }}
+            >
+              U heeft al een ticket voor dit evenement. Wenst u uw ticket te
+              upgraden? Contacteer ons! Wij helpen jou graag verder.
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '100%',
+                marginTop: normalize(15),
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#000',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => setOpenModal(false)}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Terug
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#B28A17',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => {
+                  Linking.openURL('mailto:info@zuconightclub.com');
+                }}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Contact
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
       <Image
         source={{
           uri: route.params.eventImage,
@@ -143,25 +222,30 @@ const EventProducts = ({ route, navigation }) => {
                       },
                     ]}
                     onPress={() => {
-                      if (
-                        cart.some(
-                          (cart) =>
-                            cart.product.id !== product.id &&
-                            cart.id !== route.params.id
-                        ) ||
-                        cart.length === 0
-                      ) {
-                        dispatch(
-                          addToCart({
-                            id: route.params.id,
-                            product,
-                            eventName: route.params.eventName,
-                            eventDate: route.params.eventDate,
-                            eventImage: route.params.eventImage,
-                          })
-                        );
+                      if (alreadyAdded) {
+                        if (
+                          cart.some(
+                            (cart) =>
+                              cart.product.id !== product.id &&
+                              cart.id !== route.params.id
+                          ) ||
+                          cart.length === 0
+                        ) {
+                          dispatch(
+                            addToCart({
+                              isMembership: false,
+                              id: route.params.id,
+                              product,
+                              eventName: route.params.eventName,
+                              eventDate: route.params.eventDate,
+                              eventImage: route.params.eventImage,
+                            })
+                          );
+                        } else {
+                          dispatch(removeFromCart(product));
+                        }
                       } else {
-                        dispatch(removeFromCart(product));
+                        setOpenModal(true);
                       }
                     }}
                   >
@@ -178,17 +262,6 @@ const EventProducts = ({ route, navigation }) => {
           </View>
         )}
       />
-      {cart.length > 0 && (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('AddToCart');
-          }}
-          style={styles.addToBasketBtn}
-        >
-          <Text style={styles.basketCount}>{cart.length}</Text>
-          <Image source={addtoBasket} style={styles.basketImage} />
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
@@ -198,7 +271,8 @@ export default EventProducts;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: normalize(45),
+    paddingTop: normalize(15),
+    backgroundColor: '#fff',
   },
   imageContainer: {
     borderRadius: 10,

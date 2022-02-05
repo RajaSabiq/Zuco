@@ -4,14 +4,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Linking,
   Image,
   SafeAreaView,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { normalize } from '../Style/Responsive';
+import axios from '../axios/axios';
+import { addToCart, removeFromCart } from '../Store/actions';
+import { useSelector, useDispatch } from 'react-redux';
 
-const UnActiveMembershipCard = ({ setIsOpen, impersonate_url }) => {
+const UnActiveMembershipCard = ({ setIsOpen }) => {
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
+  console.log(cart);
   return (
     <SafeAreaView
       style={{
@@ -73,10 +78,25 @@ const UnActiveMembershipCard = ({ setIsOpen, impersonate_url }) => {
       </Text>
       <TouchableOpacity
         onPress={() => {
-          Linking.openURL(
-            impersonate_url +
-              '&redirect=https://app.zuconightclub.com/lidmaatschap/activeren'
-          );
+          axios
+            .get('products')
+            .then((res) => {
+              // dispatch({
+              //   type: 'CLEAR_CART',
+              // });
+              dispatch(
+                addToCart({
+                  isMembership: true,
+                  id: res.data.data[0].id,
+                  product: res.data.data[0],
+                })
+              );
+              console.log(res.data);
+              setIsOpen(false);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }}
         style={[styles.btn, { backgroundColor: '#B28A17' }]}
       >

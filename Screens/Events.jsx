@@ -1,27 +1,23 @@
-import axios from 'axios';
 import React, { useCallback, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
   RefreshControl,
-  TouchableOpacity,
   View,
   Modal,
+  FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../Components/EventCard';
 import { GlobalStyle } from '../Style/GloabalStyle';
-import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import { useStateValue } from '../ContextApi/SateProvider';
-import { normalize } from '../Style/Responsive';
 import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
+import Axios from '../axios/axios';
 
 const Events = ({ navigation }) => {
   const [events, setEvents] = React.useState([]);
   const [refreshing, setRefreshing] = React.useState(true);
   const [isOpen, setIsOpen] = React.useState(false);
-  const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
+  const [{ impersonate_url }] = useStateValue();
 
   useEffect(() => {
     getList();
@@ -70,18 +66,13 @@ const Events = ({ navigation }) => {
         return 'Fri';
       case 6:
         return 'Sat';
-      case 7:
+      case 0:
         return 'Sun';
     }
   };
 
   const getList = async () => {
-    axios
-      .get(`${PRODUCTIONSERVER}events`, {
-        headers: {
-          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-        },
-      })
+    Axios.get(`events`)
       .then((res) => {
         setRefreshing(false);
         setEvents(res.data.data);
@@ -121,24 +112,7 @@ const Events = ({ navigation }) => {
     );
   };
   return (
-    <SafeAreaView style={styles.container}>
-      {!isActiveMemberShip && (
-        <TouchableOpacity
-          onPress={() => {
-            setIsOpen(true);
-          }}
-          style={{
-            backgroundColor: '#B28A17',
-            padding: normalize(10),
-            borderBottomLeftRadius: normalize(7),
-            borderBottomRightRadius: normalize(7),
-          }}
-        >
-          <Text style={{ color: '#fff', textAlign: 'center' }}>
-            Opgelet! U heeft geen actief membership. Activeer hier.
-          </Text>
-        </TouchableOpacity>
-      )}
+    <View style={styles.container}>
       <Modal visible={isOpen} transparent={false} animationType='fade'>
         <UnActiveMembershipCard
           impersonate_url={impersonate_url}
@@ -154,7 +128,7 @@ const Events = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

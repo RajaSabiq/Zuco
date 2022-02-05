@@ -7,23 +7,18 @@ import {
   Modal,
   TouchableOpacity,
   BackHandler,
+  FlatList,
 } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
 import TicketCard from '../Components/TicketCard';
 import { GlobalStyle } from '../Style/GloabalStyle';
-import { PRODUCTIONSERVER, PRODUCTIONTOKEN } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios';
 import { useStateValue } from '../ContextApi/SateProvider';
-import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
 import { normalize } from '../Style/Responsive';
+import Axios from '../axios/axios';
 
 const Tickets = ({ navigation }) => {
   const [ticketList, setTicketList] = React.useState([]);
   const [refreshing, setRefreshing] = React.useState(true);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -42,25 +37,20 @@ const Tickets = ({ navigation }) => {
 
   const getList = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    axios
-      .get(`${PRODUCTIONSERVER}user/${value}/tickets`, {
-        headers: {
-          Authorization: `Bearer ${PRODUCTIONTOKEN}`,
-        },
-      })
-      .then((res) => {
-        setRefreshing(false);
-        const { data } = res;
-        const groupData = data.data.reduce((r, a) => {
-          r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
-          return r;
-        }, {});
-        const groupDataArray = Object.keys(groupData).map((key) => ({
-          key,
-          value: groupData[key],
-        }));
-        setTicketList(groupDataArray);
-      });
+    Axios.get(`user/${value}/tickets`).then((res) => {
+      const { data } = res;
+      console.log({ data });
+      const groupData = data.data.reduce((r, a) => {
+        r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
+        return r;
+      }, {});
+      const groupDataArray = Object.keys(groupData).map((key) => ({
+        key,
+        value: groupData[key],
+      }));
+      setRefreshing(false);
+      setTicketList(groupDataArray);
+    });
   };
 
   const onRefresh = useCallback(() => {
@@ -70,23 +60,23 @@ const Tickets = ({ navigation }) => {
 
   const getMonth = ({ number }) => {
     switch (number) {
-      case '1':
+      case '01':
         return 'Jan';
-      case '2':
+      case '02':
         return 'Feb';
-      case '3':
+      case '03':
         return 'Mar';
-      case '4':
+      case '04':
         return 'Apr';
-      case '5':
+      case '05':
         return 'May';
-      case '6':
+      case '06':
         return 'Jun';
-      case '7':
+      case '07':
         return 'Jul';
-      case '8':
+      case '08':
         return 'Aug';
-      case '9':
+      case '09':
         return 'Sep';
       case '10':
         return 'Oct';
@@ -110,7 +100,7 @@ const Tickets = ({ navigation }) => {
         return 'Fri';
       case 6:
         return 'Sat';
-      case 7:
+      case 0:
         return 'Sun';
     }
   };
@@ -118,9 +108,6 @@ const Tickets = ({ navigation }) => {
   const renderCard = ({ item }) => {
     let startDate = new Date(
       item.value[0].attributes.event?.attributes.event_starts_at.split(' ')[0]
-    );
-    startDate.setTime(
-      startDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000
     );
     return (
       <TicketCard
@@ -168,37 +155,15 @@ const Tickets = ({ navigation }) => {
         tickDateTime={item.value[0].attributes.product.attributes?.created_at}
         navigation={navigation}
         value={item.value}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
       />
     );
   };
   return (
-    <SafeAreaView style={styles.container}>
-      {!isActiveMemberShip && (
-        <TouchableOpacity
-          onPress={() => {
-            setIsOpen(true);
-          }}
-          style={{
-            backgroundColor: '#B28A17',
-            padding: normalize(10),
-            borderBottomLeftRadius: normalize(7),
-            borderBottomRightRadius: normalize(7),
-          }}
-        >
-          <Text style={{ color: '#fff', textAlign: 'center' }}>
-            Opgelet! U heeft geen actief membership. Activeer hier.
-          </Text>
-        </TouchableOpacity>
-      )}
-      <Modal visible={isOpen} transparent={false} animationType='slide'>
-        <UnActiveMembershipCard
-          impersonate_url={impersonate_url}
-          setIsOpen={setIsOpen}
-        />
-      </Modal>
+    <View style={styles.container}>
       <Text style={GlobalStyle.headerText}>Mijn Bestellingen</Text>
       <FlatList
-        style={{ flex: 1 }}
         data={ticketList}
         renderItem={renderCard}
         refreshControl={
@@ -218,7 +183,7 @@ const Tickets = ({ navigation }) => {
           </View>
         )}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 const styles = StyleSheet.create({

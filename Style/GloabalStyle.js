@@ -25,11 +25,11 @@ export const GlobalStyle = StyleSheet.create({
     fontSize: normalize(25),
     fontWeight: '700',
     color: '#000',
-    marginTop: normalize(10),
     marginLeft: normalize(25),
     marginBottom: normalize(10),
   },
   row: {
     flexDirection: 'column',
+    paddingHorizontal: normalize(25),
   },
 });
