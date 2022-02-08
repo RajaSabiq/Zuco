@@ -16,7 +16,6 @@ import { useSelector, useDispatch } from 'react-redux';
 const UnActiveMembershipCard = ({ setIsOpen }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
-  console.log(cart);
   return (
     <SafeAreaView
       style={{
@@ -91,7 +90,6 @@ const UnActiveMembershipCard = ({ setIsOpen }) => {
                   product: res.data.data[0],
                 })
               );
-              console.log(res.data);
               setIsOpen(false);
             })
             .catch((err) => {

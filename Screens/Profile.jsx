@@ -27,6 +27,7 @@ const Profile = ({ navigation }) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   var timer = useRef(null);
+  const [error, setError] = useState('');
 
   const onRefresh = React.useCallback(async () => {
     setIsLoading(true);
@@ -35,6 +36,8 @@ const Profile = ({ navigation }) => {
   }, []);
 
   const [openPhotoDialog, setOpenPhotoDialog] = useState(false);
+  const [onPhotoFailDialog, setOnPhotoFailDialog] = useState(false);
+  const [photo, setPhoto] = useState(null);
 
   const pickImage = async () => {
     setOpenPhotoDialog(false);
@@ -46,6 +49,8 @@ const Profile = ({ navigation }) => {
         quality: 1,
       });
       const { uri, type } = result;
+
+      setPhoto(uri);
 
       const value = await AsyncStorage.getItem('user_id');
       const formData = new FormData();
@@ -66,6 +71,8 @@ const Profile = ({ navigation }) => {
         selfCalling();
       });
     } catch (e) {
+      setOnPhotoFailDialog(true);
+      setError(e);
       console.log(e);
     }
   };
@@ -190,6 +197,90 @@ const Profile = ({ navigation }) => {
         </BlurView>
       </Modal>
 
+      <Modal visible={onPhotoFailDialog} animationType='fade' transparent>
+        <BlurView
+          tint='dark'
+          intensity={100}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <View
+            style={{
+              backgroundColor: '#fff',
+              width: '90%',
+              padding: normalize(20),
+              borderRadius: normalize(10),
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(17),
+                fontWeight: 'bold',
+                color: '#B28A17',
+              }}
+            >
+              Oeps! Probeer opnieuw.
+            </Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: normalize(14),
+                color: '#5C5C5C',
+                fontWeight: '300',
+              }}
+            >
+              Er ging iets mis met het uploaden van jouw foto. Probeer het
+              opnieuw.
+              {'\n'}
+              {error}
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '100%',
+                marginTop: normalize(15),
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#000',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => setOpenPhotoDialog(false)}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Terug
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#B28A17',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={pickImage}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  opnieuw
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
+
       <ScrollView
         style={{
           flex: 1,
@@ -210,7 +301,12 @@ const Profile = ({ navigation }) => {
             <Image
               source={
                 data?.attributes?.profile_image_path
-                  ? { uri: data?.attributes?.profile_image_path }
+                  ? {
+                      uri:
+                        photo != null
+                          ? photo
+                          : data?.attributes?.profile_image_path,
+                    }
                   : require('../assets/icon.png')
               }
               style={{
@@ -295,5 +391,3 @@ const Profile = ({ navigation }) => {
   );
 };
 export default Profile;
-
-const styles = StyleSheet.create({});

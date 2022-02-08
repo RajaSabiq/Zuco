@@ -37,6 +37,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
       setInterval(() => {
         Axios.get(`/orders/${orderId}`)
           .then((res) => {
+            console.log('run');
             setData(res.data.data.attributes);
           })
           .catch((err) => {
@@ -55,7 +56,12 @@ const MainScreenAfterLogin = ({ navigation }) => {
   return (
     <>
       <Modal visible={goingForPayment && data !== null}>
-        <OrderStatus data={data} cart={cart} />
+        <OrderStatus
+          data={data}
+          cart={cart}
+          setOpenBackDialog={setOpenBackDialog}
+          navigation={navigation}
+        />
       </Modal>
 
       <Modal visible={openBackDialog} animationType='fade' transparent>
@@ -207,7 +213,34 @@ const MainScreenAfterLogin = ({ navigation }) => {
             </SafeAreaView>
           )}
         </MainScreenStack.Screen>
-        <MainScreenStack.Screen name='AddToCart' component={AddToCart} />
+        <MainScreenStack.Screen name='AddToCart'>
+          {() => (
+            <SafeAreaView
+              style={{
+                flex: 1,
+                backgroundColor: '#fff',
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#ccc',
+                  width: normalize(30),
+                  height: normalize(30),
+                  alignSelf: 'flex-end',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginEnd: normalize(15),
+                  marginTop: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => setOpenBackDialog(true)}
+              >
+                <Ionicons name='exit-outline' size={24} color='black' />
+              </TouchableOpacity>
+              <AddToCart navigation={navigation} />
+            </SafeAreaView>
+          )}
+        </MainScreenStack.Screen>
       </MainScreenStack.Navigator>
     </>
   );

@@ -39,7 +39,6 @@ const Tickets = ({ navigation }) => {
     const value = await AsyncStorage.getItem('user_id');
     Axios.get(`user/${value}/tickets`).then((res) => {
       const { data } = res;
-      console.log({ data });
       const groupData = data.data.reduce((r, a) => {
         r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
         return r;

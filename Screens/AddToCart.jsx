@@ -24,16 +24,6 @@ const AddToCart = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const isMemberShipInCart = useSelector((state) => state.isMemberShipInCart);
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        navigation.goBack();
-        return true;
-      }
-    );
-    return () => backHandler.remove();
-  }, []);
 
   const renderItem = ({ item }) => (
     <View style={GlobalStyle.row}>
@@ -82,169 +72,167 @@ const AddToCart = ({ navigation, route }) => {
   );
 
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <Text style={GlobalStyle.headerText}>Winkelmand</Text>
-        {!isMemberShipInCart ? (
-          <FlatList
-            style={styles.flatList}
-            data={cart}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItem}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Uw winkelmand is leeg.</Text>
-              </View>
-            }
-          />
-        ) : (
-          <View
+    <View style={styles.container}>
+      <Text style={GlobalStyle.headerText}>Winkelmand</Text>
+      {!isMemberShipInCart ? (
+        <FlatList
+          style={styles.flatList}
+          data={cart}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Uw winkelmand is leeg.</Text>
+            </View>
+          }
+        />
+      ) : (
+        <View
+          style={{
+            paddingHorizontal: normalize(25),
+            marginTop: normalize(20),
+          }}
+        >
+          <View style={styles.bottomContainer}>
+            <Image
+              source={require('../assets/membercard.png')}
+              style={styles.ticket}
+            />
+            <View
+              style={{
+                width: normalize(110),
+              }}
+            >
+              <Text style={styles.ticketType}>ZUCO Membership</Text>
+            </View>
+            <Text style={styles.txTicket}>
+              &euro;{' '}
+              {(+cart[0].product.attributes.price +
+                +cart[0].product.attributes.handling_cost) /
+                100}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                dispatch(removeFromCart(item.product));
+              }}
+            >
+              <Entypo name='cross' size={24} color='black' />
+            </TouchableOpacity>
+          </View>
+          <Text
             style={{
-              paddingHorizontal: normalize(25),
-              marginTop: normalize(20),
+              textAlign: 'center',
+              color: '#000',
+              fontSize: normalize(14),
+              lineHeight: 30,
+              marginHorizontal: normalize(30),
             }}
           >
-            <View style={styles.bottomContainer}>
-              <Image
-                source={require('../assets/membercard.png')}
-                style={styles.ticket}
-              />
-              <View
-                style={{
-                  width: normalize(110),
-                }}
-              >
-                <Text style={styles.ticketType}>ZUCO Membership</Text>
-              </View>
-              <Text style={styles.txTicket}>
-                &euro;{' '}
-                {(+cart[0].product.attributes.price +
-                  +cart[0].product.attributes.handling_cost) /
-                  100}
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  dispatch(removeFromCart(item.product));
-                }}
-              >
-                <Entypo name='cross' size={24} color='black' />
-              </TouchableOpacity>
-            </View>
             <Text
               style={{
                 textAlign: 'center',
-                color: '#000',
-                fontSize: normalize(14),
-                lineHeight: 30,
-                marginHorizontal: normalize(30),
+                color: '#B28A17',
+                fontWeight: '700',
+              }}
+            >
+              ZUCO Membercard{' '}
+            </Text>
+            <Text style={{ fontWeight: '700' }}>gaat digitaal! {`\n`}</Text>
+            De ZUCO Magical Membercard is geldig voor 1 jaar vanaf het eerste
+            gebruik.
+          </Text>
+        </View>
+      )}
+      {cart.length > 0 && (
+        <View>
+          <View style={styles.cartTotalView}>
+            <Text style={styles.total}>
+              Subtotaal: €
+              {cart.reduce((acc, item) => {
+                return (
+                  acc +
+                  (+item.product.attributes.price +
+                    +item.product.attributes.handling_cost) /
+                    100
+                );
+              }, 0)}
+            </Text>
+            <Text>Service: &euro; 1.00</Text>
+            <Text>BTW: &euro; 2.50 </Text>
+            <Text style={styles.total}>
+              Totaal: &euro;
+              {cart.reduce((acc, item) => {
+                return (
+                  acc +
+                  (+item.product.attributes.price +
+                    +item.product.attributes.handling_cost) /
+                    100
+                );
+              }, 0) + 3.5}
+            </Text>
+          </View>
+          <View style={styles.btnContainer}>
+            <TouchableOpacity
+              style={[
+                styles.btn,
+                {
+                  backgroundColor: '#000000',
+                  marginRight: normalize(20),
+                },
+              ]}
+              onPress={() => {
+                navigation.goBack();
               }}
             >
               <Text
                 style={{
-                  textAlign: 'center',
-                  color: '#B28A17',
+                  color: '#ffffff',
                   fontWeight: '700',
                 }}
               >
-                ZUCO Membercard{' '}
+                Verder kijken
               </Text>
-              <Text style={{ fontWeight: '700' }}>gaat digitaal! {`\n`}</Text>
-              De ZUCO Magical Membercard is geldig voor 1 jaar vanaf het eerste
-              gebruik.
-            </Text>
-          </View>
-        )}
-        {cart.length > 0 && (
-          <View>
-            <View style={styles.cartTotalView}>
-              <Text style={styles.total}>
-                Subtotaal: €
-                {cart.reduce((acc, item) => {
-                  return (
-                    acc +
-                    (+item.product.attributes.price +
-                      +item.product.attributes.handling_cost) /
-                      100
-                  );
-                }, 0)}
-              </Text>
-              <Text>Service: &euro; 1.00</Text>
-              <Text>BTW: &euro; 2.50 </Text>
-              <Text style={styles.total}>
-                Totaal: &euro;
-                {cart.reduce((acc, item) => {
-                  return (
-                    acc +
-                    (+item.product.attributes.price +
-                      +item.product.attributes.handling_cost) /
-                      100
-                  );
-                }, 0) + 3.5}
-              </Text>
-            </View>
-            <View style={styles.btnContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.btn,
-                  {
-                    backgroundColor: '#000000',
-                    marginRight: normalize(20),
-                  },
-                ]}
-                onPress={() => {
-                  navigation.goBack();
-                }}
-              >
-                <Text
-                  style={{
-                    color: '#ffffff',
-                    fontWeight: '700',
-                  }}
-                >
-                  Verder kijken
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={async () => {
-                  const value = await AsyncStorage.getItem('user_id');
-                  Axios.post(`orders`, {
-                    data: {
-                      type: 'order',
-                      attributes: {
-                        user_id: value,
-                        products: cart.map((item) => {
-                          return {
-                            id: item.product.id,
-                          };
-                        }),
-                      },
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                const value = await AsyncStorage.getItem('user_id');
+                Axios.post(`orders`, {
+                  data: {
+                    type: 'order',
+                    attributes: {
+                      user_id: value,
+                      products: cart.map((item) => {
+                        return {
+                          id: item.product.id,
+                        };
+                      }),
                     },
-                  }).then((res) => {
-                    dispatch(saveOrderId(res.data.order_id, true));
-                    Linking.openURL(res.data.checkout_url);
-                  });
-                }}
-                style={[
-                  styles.btn,
-                  {
-                    backgroundColor: '#B28A17',
                   },
-                ]}
+                }).then((res) => {
+                  dispatch(saveOrderId(res.data.order_id, true));
+                  Linking.openURL(res.data.checkout_url);
+                });
+              }}
+              style={[
+                styles.btn,
+                {
+                  backgroundColor: '#B28A17',
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  color: '#ffffff',
+                  fontWeight: '700',
+                }}
               >
-                <Text
-                  style={{
-                    color: '#ffffff',
-                    fontWeight: '700',
-                  }}
-                >
-                  Afrekenen
-                </Text>
-              </TouchableOpacity>
-            </View>
+                Afrekenen
+              </Text>
+            </TouchableOpacity>
           </View>
-        )}
-      </View>
-    </SafeAreaView>
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -252,7 +240,6 @@ export default AddToCart;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: normalize(25),
     marginBottom: normalize(15),
   },
   imageContainer: {

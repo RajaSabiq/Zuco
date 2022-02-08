@@ -14,8 +14,9 @@ import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
 import { useDispatch } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 
-const OrderStatus = ({ data, cart }) => {
+const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     setTimeout(() => {}, 300000);
@@ -76,6 +77,22 @@ const OrderStatus = ({ data, cart }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#ccc',
+          width: normalize(30),
+          height: normalize(30),
+          alignSelf: 'flex-end',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginEnd: normalize(15),
+          marginTop: normalize(10),
+          borderRadius: normalize(10),
+        }}
+        onPress={() => setOpenBackDialog(true)}
+      >
+        <Ionicons name='exit-outline' size={24} color='black' />
+      </TouchableOpacity>
       <View style={styles.row}>
         <Text style={GlobalStyle.headerText}>
           {data.status == 'completed'
@@ -106,17 +123,20 @@ const OrderStatus = ({ data, cart }) => {
           </View>
         }
       />
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={() => {
-          if (data.status == 'completed') {
-            dispatch({ type: 'CLEAR_CART' });
-          } else {
-            dispatch({ type: 'isPayment', isPayment: false });
-          }
-        }}
-      >
-        {data.status != 'pending' && (
+      {data.status != 'pending' && (
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            if (data.status == 'completed') {
+              navigation.replace('Home', {
+                screen: 'Profile',
+              });
+              dispatch({ type: 'CLEAR_CART' });
+            } else {
+              dispatch({ type: 'isPayment', isPayment: false });
+            }
+          }}
+        >
           <Text
             style={{
               color: '#ffffff',
@@ -127,8 +147,8 @@ const OrderStatus = ({ data, cart }) => {
               ? 'Overzicht bestellingen'
               : 'Opnieuw proberen'}
           </Text>
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 };

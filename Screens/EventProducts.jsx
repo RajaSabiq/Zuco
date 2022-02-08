@@ -47,7 +47,7 @@ const EventProducts = ({ route, navigation }) => {
     Axios.get(`user/${value}/tickets`).then((res) => {
       const { data } = res;
       setAlreadyAdded(
-        data.data.some((item) => item.attributes.product.id === route.params.id)
+        !data.data.some((item) => item.attributes.event.id === route.params.id)
       );
     });
   };
