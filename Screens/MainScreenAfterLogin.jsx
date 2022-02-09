@@ -34,16 +34,17 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
     if (goingForPayment) {
-      setInterval(() => {
-        Axios.get(`/orders/${orderId}`)
-          .then((res) => {
-            console.log('run');
-            setData(res.data.data.attributes);
-          })
-          .catch((err) => {
-            consoel.log(err);
-          });
-      }, 5000);
+      if (data.status === 'completed') {
+        setInterval(() => {
+          Axios.get(`/orders/${orderId}`)
+            .then((res) => {
+              setData(res.data.data.attributes);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }, 5000);
+      }
     }
   }, [goingForPayment]);
 

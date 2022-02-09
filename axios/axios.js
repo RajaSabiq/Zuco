@@ -2,11 +2,11 @@ import axios from 'axios';
 import { PRODUCTIONSERVER, PRODUCTIONTOKEN, SERVER, TOKEN } from '@env';
 
 const Axios = axios.create({
-  baseURL: SERVER,
+  baseURL: PRODUCTIONSERVER,
 });
 
 Axios.interceptors.request.use((req) => {
-  req.headers.Authorization = `Bearer ${TOKEN}`;
+  req.headers.Authorization = `Bearer ${PRODUCTIONTOKEN}`;
   return req;
 });
 

@@ -13,14 +13,17 @@ import {
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
-import { useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons, Entypo } from '@expo/vector-icons';
 
 const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
-    setTimeout(() => {}, 300000);
+    setTimeout(() => {
+      setOpenBackDialog(false);
+    }, 300000);
   }, []);
+  const isMemberShipInCart = useSelector((state) => state.isMemberShipInCart);
   const renderItem = ({ item }) => {
     return (
       <View style={GlobalStyle.row}>
@@ -31,8 +34,8 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
             fontSizeMonth={17}
             fontSizeDate={35}
             borderRadius={17}
-            date={12}
-            month={'Dec'}
+            date={item.eventDate.split(' ')[2]}
+            month={item.eventDate.split(' ')[1]}
           />
           <View style={styles.eventTextContainer}>
             <Text style={styles.eventDetail}>{item.eventDate}</Text>
@@ -95,7 +98,9 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
       </TouchableOpacity>
       <View style={styles.row}>
         <Text style={GlobalStyle.headerText}>
-          {data.status == 'completed'
+          {data.status == 'pending'
+            ? 'Bestelling Bezig'
+            : data.status == 'completed'
             ? 'Bestelling gelukt'
             : 'Bestelling mislukt'}
         </Text>
@@ -112,17 +117,77 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
           <ActivityIndicator size='large' color='#000' />
         )}
       </View>
-      <FlatList
-        style={styles.flatList}
-        data={cart}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Uw winkelmand is leeg.</Text>
+
+      {!isMemberShipInCart ? (
+        <FlatList
+          style={styles.flatList}
+          data={cart}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Uw winkelmand is leeg.</Text>
+            </View>
+          }
+        />
+      ) : (
+        <View
+          style={{
+            paddingHorizontal: normalize(25),
+            marginTop: normalize(20),
+          }}
+        >
+          <View style={styles.bottomContainer}>
+            <Image
+              source={require('../assets/membercard.png')}
+              style={styles.ticket}
+            />
+            <View
+              style={{
+                width: normalize(110),
+              }}
+            >
+              <Text style={styles.ticketType}>ZUCO Membership</Text>
+            </View>
+            <Text style={styles.txTicket}>
+              &euro;{' '}
+              {(+cart[0].product.attributes.price +
+                +cart[0].product.attributes.handling_cost) /
+                100}
+            </Text>
+            <Image
+              source={
+                data.status == 'completed'
+                  ? require('../assets/check.png')
+                  : require('../assets/failed.png')
+              }
+              style={styles.ticketStatus}
+            />
           </View>
-        }
-      />
+          <Text
+            style={{
+              textAlign: 'center',
+              color: '#000',
+              fontSize: normalize(14),
+              lineHeight: 30,
+              marginHorizontal: normalize(30),
+            }}
+          >
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#B28A17',
+                fontWeight: '700',
+              }}
+            >
+              ZUCO Membercard{' '}
+            </Text>
+            <Text style={{ fontWeight: '700' }}>gaat digitaal! {`\n`}</Text>
+            De ZUCO Magical Membercard is geldig voor 1 jaar vanaf het eerste
+            gebruik.
+          </Text>
+        </View>
+      )}
       {data.status != 'pending' && (
         <TouchableOpacity
           style={styles.btn}
