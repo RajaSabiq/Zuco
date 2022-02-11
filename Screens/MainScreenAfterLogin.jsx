@@ -34,7 +34,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
     if (goingForPayment) {
-      if (data.status === 'completed') {
+      if (!data || data?.status !== 'completed') {
         setInterval(() => {
           Axios.get(`/orders/${orderId}`)
             .then((res) => {

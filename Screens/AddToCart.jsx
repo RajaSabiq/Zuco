@@ -113,7 +113,10 @@ const AddToCart = ({ navigation, route }) => {
             </Text>
             <TouchableOpacity
               onPress={() => {
-                dispatch(removeFromCart(item.product));
+                dispatch({
+                  type: 'CLEAR_CART',
+                });
+                navigation.goBack();
               }}
             >
               <Entypo name='cross' size={24} color='black' />
@@ -146,7 +149,7 @@ const AddToCart = ({ navigation, route }) => {
       {cart.length > 0 && (
         <View>
           <View style={styles.cartTotalView}>
-            <Text style={styles.total}>
+            {/* <Text style={styles.total}>
               Subtotaal: €
               {cart.reduce((acc, item) => {
                 return (
@@ -156,9 +159,7 @@ const AddToCart = ({ navigation, route }) => {
                     100
                 );
               }, 0)}
-            </Text>
-            <Text>Service: &euro; 1.00</Text>
-            <Text>BTW: &euro; 2.50 </Text>
+            </Text> */}
             <Text style={styles.total}>
               Totaal: &euro;
               {cart.reduce((acc, item) => {
@@ -168,7 +169,7 @@ const AddToCart = ({ navigation, route }) => {
                     +item.product.attributes.handling_cost) /
                     100
                 );
-              }, 0) + 3.5}
+              }, 0)}
             </Text>
           </View>
           <View style={styles.btnContainer}>

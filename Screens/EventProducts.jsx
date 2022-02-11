@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import Calender from '../Components/Calender';
 import { normalize } from '../Style/Responsive';
@@ -22,8 +23,17 @@ const EventProducts = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(true);
+  const onRefresh = useCallback(() => {
+    getAllTickets();
+  }, []);
   const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
+    getAllTickets();
+  }, []);
+
+  const getAllTickets = async () => {
+    setRefreshing(true);
     Axios.get(`events/${route.params.id}/products`).then((res) => {
       const { data } = res;
       const groupData = data.data.reduce((r, a) => {
@@ -40,12 +50,13 @@ const EventProducts = ({ route, navigation }) => {
       setEvents(groupDataArray);
     });
     getList();
-  }, []);
+  };
 
   const getList = async () => {
     const value = await AsyncStorage.getItem('user_id');
     Axios.get(`user/${value}/tickets`).then((res) => {
       const { data } = res;
+      setRefreshing(false);
       setAlreadyAdded(
         !data.data.some((item) => item.attributes.event.id === route.params.id)
       );
@@ -161,6 +172,9 @@ const EventProducts = ({ route, navigation }) => {
       <FlatList
         data={events}
         keyExtractor={(item) => item.key}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({ item, index }) => (
           <View
             style={{
@@ -222,31 +236,34 @@ const EventProducts = ({ route, navigation }) => {
                       },
                     ]}
                     onPress={() => {
-                      if (alreadyAdded) {
-                        if (
-                          cart.some(
-                            (cart) =>
-                              cart.product.id !== product.id &&
-                              cart.id !== route.params.id
-                          ) ||
-                          cart.length === 0
-                        ) {
-                          dispatch(
-                            addToCart({
-                              isMembership: false,
-                              id: route.params.id,
-                              product,
-                              eventName: route.params.eventName,
-                              eventDate: route.params.eventDate,
-                              eventImage: route.params.eventImage,
-                            })
-                          );
-                        } else {
-                          dispatch(removeFromCart(product));
-                        }
+                      // if (alreadyAdded) {
+                      if (
+                        cart.some(
+                          (cart) =>
+                            cart.product.id !== product.id &&
+                            cart.id !== route.params.id
+                        ) ||
+                        cart.length === 0
+                      ) {
+                        console.log({
+                          product,
+                        });
+                        dispatch(
+                          addToCart({
+                            isMembership: false,
+                            id: route.params.id,
+                            product,
+                            eventName: route.params.eventName,
+                            eventDate: route.params.eventDate,
+                            eventImage: route.params.eventImage,
+                          })
+                        );
                       } else {
-                        setOpenModal(true);
+                        dispatch(removeFromCart(product));
                       }
+                      // } else {
+                      //   setOpenModal(true);
+                      // }
                     }}
                   >
                     <Image
