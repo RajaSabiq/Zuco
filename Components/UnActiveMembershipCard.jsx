@@ -19,7 +19,6 @@ const UnActiveMembershipCard = ({ setIsOpen }) => {
   return (
     <SafeAreaView
       style={{
-        flex: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
         padding: normalize(25),
@@ -80,16 +79,15 @@ const UnActiveMembershipCard = ({ setIsOpen }) => {
           axios
             .get('products')
             .then((res) => {
-              // dispatch({
-              //   type: 'CLEAR_CART',
-              // });
-              dispatch(
-                addToCart({
-                  isMembership: true,
-                  id: res.data.data[0].id,
-                  product: res.data.data[0],
-                })
-              );
+              if (cart.length == 0) {
+                dispatch(
+                  addToCart({
+                    isMembership: true,
+                    id: res.data.data[0].id,
+                    product: res.data.data[0],
+                  })
+                );
+              }
               setIsOpen(false);
             })
             .catch((err) => {

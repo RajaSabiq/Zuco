@@ -21,7 +21,7 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   useEffect(() => {
     setTimeout(() => {
       setOpenBackDialog(false);
-    }, 300000);
+    }, 120000);
   }, []);
   const isMemberShipInCart = useSelector((state) => state.isMemberShipInCart);
   const renderItem = ({ item }) => {
