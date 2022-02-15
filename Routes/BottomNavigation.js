@@ -10,6 +10,7 @@ import EventProducts from '../Screens/EventProducts';
 import AddToCart from '../Screens/AddToCart';
 import addtoBasket from '../assets/cart.png';
 import { AntDesign } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +32,7 @@ const eventNavationStack = () => {
 };
 
 const BottomNavigation = () => {
+  const cart = useSelector((state) => state.cart);
   return (
     <Tab.Navigator
       initialRouteName={'Profile'}
@@ -44,13 +46,21 @@ const BottomNavigation = () => {
         },
       })}
     >
-      <Tab.Screen
-        name='jahd'
-        component={eventNavationStack}
-        options={{
-          tabBarIcon: () => null,
-        }}
-      />
+      {cart.length > 0 && (
+        <Tab.Screen
+          name='jahd'
+          component={eventNavationStack}
+          options={{
+            tabBarIcon: () => null,
+          }}
+          listeners={{
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+            },
+          }}
+        />
+      )}
       <Tab.Screen
         name='Events'
         component={eventNavationStack}
@@ -61,7 +71,7 @@ const BottomNavigation = () => {
               style={{
                 height: normalize(30),
                 width: normalize(30),
-                alignSelf: 'center',
+                alignSelf: cart.length > 0 ? 'center' : 'flex-end',
               }}
             />
           ),
@@ -96,7 +106,7 @@ const BottomNavigation = () => {
               style={{
                 height: normalize(30),
                 width: normalize(30),
-                alignSelf: 'center',
+                alignSelf: cart.length > 0 ? 'center' : 'flex-start',
               }}
             />
           ),
@@ -104,22 +114,21 @@ const BottomNavigation = () => {
         name='Ticket'
         component={Tickets}
       />
-      <Tab.Screen
-        options={{
-          tabBarIcon: () => (
-            <Image
-              source={require('../assets/shopping-cart.png')}
-              style={{
-                height: normalize(30),
-                width: normalize(30),
-                alignSelf: 'flex-start',
-              }}
-            />
-          ),
-        }}
-        name='AddToCart'
-        component={AddToCart}
-      />
+      {cart.length > 0 && (
+        <Tab.Screen
+          options={{
+            tabBarIcon: () => null,
+          }}
+          listeners={{
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+            },
+          }}
+          name='AddToCart'
+          component={AddToCart}
+        />
+      )}
     </Tab.Navigator>
   );
 };

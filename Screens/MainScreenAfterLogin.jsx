@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStateValue } from '../ContextApi/SateProvider';
 import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
+import * as Device from 'expo-device';
 
 const MainScreenStack = createStackNavigator();
 
@@ -202,6 +203,12 @@ const MainScreenAfterLogin = ({ navigation }) => {
               <BottomNavigation />
               {cart.length > 0 && (
                 <TouchableOpacity
+                  style={{
+                    position: 'absolute',
+                    bottom:
+                      Device.brand == 'Apple' ? normalize(30) : normalize(10),
+                    right: normalize(10),
+                  }}
                   onPress={() => {
                     navigation.navigate('AddToCart');
                   }}
