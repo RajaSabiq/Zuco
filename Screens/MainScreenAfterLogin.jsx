@@ -214,34 +214,6 @@ const MainScreenAfterLogin = ({ navigation }) => {
             </SafeAreaView>
           )}
         </MainScreenStack.Screen>
-        <MainScreenStack.Screen name='AddToCart'>
-          {() => (
-            <SafeAreaView
-              style={{
-                flex: 1,
-                backgroundColor: '#fff',
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  backgroundColor: '#ccc',
-                  width: normalize(30),
-                  height: normalize(30),
-                  alignSelf: 'flex-end',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginEnd: normalize(15),
-                  marginTop: normalize(10),
-                  borderRadius: normalize(10),
-                }}
-                onPress={() => setOpenBackDialog(true)}
-              >
-                <Ionicons name='exit-outline' size={24} color='black' />
-              </TouchableOpacity>
-              <AddToCart navigation={navigation} />
-            </SafeAreaView>
-          )}
-        </MainScreenStack.Screen>
       </MainScreenStack.Navigator>
     </>
   );

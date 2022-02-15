@@ -7,6 +7,9 @@ import Events from '../Screens/Events';
 import { Image, View } from 'react-native';
 import { normalize } from '../Style/Responsive';
 import EventProducts from '../Screens/EventProducts';
+import AddToCart from '../Screens/AddToCart';
+import addtoBasket from '../assets/cart.png';
+import { AntDesign } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 
@@ -42,6 +45,13 @@ const BottomNavigation = () => {
       })}
     >
       <Tab.Screen
+        name='jahd'
+        component={eventNavationStack}
+        options={{
+          tabBarIcon: () => null,
+        }}
+      />
+      <Tab.Screen
         name='Events'
         component={eventNavationStack}
         options={{
@@ -51,7 +61,7 @@ const BottomNavigation = () => {
               style={{
                 height: normalize(30),
                 width: normalize(30),
-                alignSelf: 'flex-end',
+                alignSelf: 'center',
               }}
             />
           ),
@@ -86,13 +96,29 @@ const BottomNavigation = () => {
               style={{
                 height: normalize(30),
                 width: normalize(30),
-                alignSelf: 'flex-start',
+                alignSelf: 'center',
               }}
             />
           ),
         }}
         name='Ticket'
         component={Tickets}
+      />
+      <Tab.Screen
+        options={{
+          tabBarIcon: () => (
+            <Image
+              source={require('../assets/shopping-cart.png')}
+              style={{
+                height: normalize(30),
+                width: normalize(30),
+                alignSelf: 'flex-start',
+              }}
+            />
+          ),
+        }}
+        name='AddToCart'
+        component={AddToCart}
       />
     </Tab.Navigator>
   );

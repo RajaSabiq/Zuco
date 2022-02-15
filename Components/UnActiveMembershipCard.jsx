@@ -12,6 +12,7 @@ import { normalize } from '../Style/Responsive';
 import axios from '../axios/axios';
 import { addToCart, removeFromCart } from '../Store/actions';
 import { useSelector, useDispatch } from 'react-redux';
+import * as Device from 'expo-device';
 
 const UnActiveMembershipCard = ({ setIsOpen }) => {
   const dispatch = useDispatch();
@@ -19,9 +20,11 @@ const UnActiveMembershipCard = ({ setIsOpen }) => {
   return (
     <SafeAreaView
       style={{
+        flex: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
         padding: normalize(25),
+        marginTop: Device.brand == 'Apple' ? normalize(25) : 0,
       }}
     >
       <TouchableOpacity
