@@ -9,14 +9,14 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Modal
 } from 'react-native';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons, Entypo } from '@expo/vector-icons';
-import CountDown from 'react-native-countdown-component';
-import moment from 'moment';
+import { BlurView } from 'expo-blur';
 
 const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   const dispatch = useDispatch();
