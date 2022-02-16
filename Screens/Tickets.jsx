@@ -48,10 +48,12 @@ const Tickets = ({ navigation }) => {
           key,
           value: groupData[key],
         }));
+        console.log(groupDataArray);
         setRefreshing(false);
         setTicketList(groupDataArray);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log('error', err);
         setRefreshing(false);
       });
   };

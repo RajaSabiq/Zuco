@@ -34,8 +34,8 @@ const AddToCart = ({ navigation, route }) => {
           fontSizeMonth={17}
           fontSizeDate={35}
           borderRadius={17}
-          date={12}
-          month={'Dec'}
+          date={item.eventDate.split(' ')[2]}
+          month={item.eventDate.split(' ')[1]}
         />
         <View style={styles.eventTextContainer}>
           <Text style={styles.eventDetail}>{item.eventDate}</Text>

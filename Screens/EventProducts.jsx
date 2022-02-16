@@ -54,13 +54,24 @@ const EventProducts = ({ route, navigation }) => {
 
   const getList = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    Axios.get(`user/${value}/tickets`).then((res) => {
-      const { data } = res;
-      setRefreshing(false);
-      setAlreadyAdded(
-        !data.data.some((item) => item.attributes.event.id === route.params.id)
-      );
-    });
+    console.log({ value });
+    Axios.get(`user/${value}/tickets`)
+      .then((res) => {
+        const { data } = res;
+        setRefreshing(false);
+        console.log(
+          data.data.some((item) => item.attributes.event.id === route.params.id)
+        );
+        setAlreadyAdded(
+          !data.data.some(
+            (item) => item.attributes.event.id === route.params.id
+          )
+        );
+      })
+      .catch((err) => {
+        console.log('error', err);
+        setRefreshing(false);
+      });
   };
 
   return (
@@ -236,34 +247,34 @@ const EventProducts = ({ route, navigation }) => {
                       },
                     ]}
                     onPress={() => {
-                      // if (alreadyAdded) {
-                      if (
-                        cart.some(
-                          (cart) =>
-                            cart.product.id !== product.id &&
-                            cart.id !== route.params.id
-                        ) ||
-                        cart.length === 0
-                      ) {
-                        console.log({
-                          product,
-                        });
-                        dispatch(
-                          addToCart({
-                            isMembership: false,
-                            id: route.params.id,
+                      if (alreadyAdded) {
+                        if (
+                          cart.some(
+                            (cart) =>
+                              cart.product.id !== product.id &&
+                              cart.id !== route.params.id
+                          ) ||
+                          cart.length === 0
+                        ) {
+                          console.log({
                             product,
-                            eventName: route.params.eventName,
-                            eventDate: route.params.eventDate,
-                            eventImage: route.params.eventImage,
-                          })
-                        );
+                          });
+                          dispatch(
+                            addToCart({
+                              isMembership: false,
+                              id: route.params.id,
+                              product,
+                              eventName: route.params.eventName,
+                              eventDate: route.params.eventDate,
+                              eventImage: route.params.eventImage,
+                            })
+                          );
+                        } else {
+                          dispatch(removeFromCart(product));
+                        }
                       } else {
-                        dispatch(removeFromCart(product));
+                        setOpenModal(true);
                       }
-                      // } else {
-                      //   setOpenModal(true);
-                      // }
                     }}
                   >
                     <Image

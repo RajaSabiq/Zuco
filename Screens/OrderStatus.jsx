@@ -9,7 +9,9 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
@@ -328,7 +330,15 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
           marginTop: normalize(20),
         }}
       >
-        U heeft {time.m} : {time.s} minuten om uworder af te ronden
+        U heeft{' '}
+        <Text
+          style={{
+            fontWeight: '700',
+          }}
+        >
+          {time.m} : {time.s}
+        </Text>{' '}
+        minuten om Uw order af te ronden
       </Text>
       {data.status != 'pending' ? (
         <TouchableOpacity
