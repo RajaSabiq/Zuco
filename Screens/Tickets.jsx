@@ -37,19 +37,23 @@ const Tickets = ({ navigation }) => {
 
   const getList = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    Axios.get(`user/${value}/tickets`).then((res) => {
-      const { data } = res;
-      const groupData = data.data.reduce((r, a) => {
-        r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
-        return r;
-      }, {});
-      const groupDataArray = Object.keys(groupData).map((key) => ({
-        key,
-        value: groupData[key],
-      }));
-      setRefreshing(false);
-      setTicketList(groupDataArray);
-    });
+    Axios.get(`user/${value}/tickets`)
+      .then((res) => {
+        const { data } = res;
+        const groupData = data.data.reduce((r, a) => {
+          r[a.attributes.event.id] = [...(r[a.attributes.event.id] || []), a];
+          return r;
+        }, {});
+        const groupDataArray = Object.keys(groupData).map((key) => ({
+          key,
+          value: groupData[key],
+        }));
+        setRefreshing(false);
+        setTicketList(groupDataArray);
+      })
+      .catch(() => {
+        setRefreshing(false);
+      });
   };
 
   const onRefresh = useCallback(() => {

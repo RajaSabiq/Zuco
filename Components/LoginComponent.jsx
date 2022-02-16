@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 
-const LoginComponent = ({ email, setEmail, password, setPassword }) => {
+const LoginComponent = ({ email, setEmail, password, setPassword, error }) => {
   return (
     <View style={GlobalStyle.itemContainer}>
       <TextInput
@@ -23,6 +23,11 @@ const LoginComponent = ({ email, setEmail, password, setPassword }) => {
         value={password}
         onChangeText={(e) => setPassword(e)}
       />
+      {error.isError && (
+        <Text style={[GlobalStyle.errorText, { marginTop: normalize(10) }]}>
+          {error.errorMessage}
+        </Text>
+      )}
     </View>
   );
 };

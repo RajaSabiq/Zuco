@@ -36,6 +36,10 @@ const Login = ({ navigation }) => {
   const [visibleForgetPassword, setVisibleForgetPassword] = useState(false);
   const [isForgetvisible, setForgetVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState({
+    isError: false,
+    errorMessage: 'Wachtwoord of gebruikersnaam is incorrect. Probeer opnieuw.',
+  });
   const [state, dispatch] = useStateValue();
   useEffect(() => {
     (async () => {
@@ -92,17 +96,33 @@ const Login = ({ navigation }) => {
               });
               setEmail('');
               setPassword('');
+            } else {
+              setIsError({
+                isError: true,
+                errorMessage:
+                  'Wachtwoord of gebruikersnaam is incorrect. Probeer opnieuw.',
+              });
             }
           })
           .catch(() => {
-            setIsWorking(false);
-            setVisible(true);
-            setMessage('Wrong email and password');
+            setIsError({
+              isError: true,
+              errorMessage:
+                'Wachtwoord of gebruikersnaam is incorrect. Probeer opnieuw.',
+            });
+            setIsError({
+              isError: true,
+              errorMessage:
+                'Wachtwoord of gebruikersnaam is incorrect. Probeer opnieuw.',
+            });
           });
       } else {
         setIsWorking(false);
-        setVisible(true);
-        setMessage(`Please Enter email and password`);
+        setIsError({
+          isError: true,
+          errorMessage:
+            'Wachtwoord of gebruikersnaam is incorrect. Probeer opnieuw.',
+        });
       }
     } else {
       if (email) {
@@ -121,8 +141,6 @@ const Login = ({ navigation }) => {
         });
       } else {
         setIsWorking(false);
-        setVisible(true);
-        setMessage(`Please Enter email `);
       }
     }
   };
@@ -342,6 +360,7 @@ const Login = ({ navigation }) => {
                 setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
+                error={isError}
               />
             ) : (
               <RegistrationComponent setEmail={setEmail} email={email} />
@@ -382,7 +401,7 @@ const Login = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           </ScrollView>
-          <Snackbar
+          {/* <Snackbar
             style={{
               position: 'absolute',
               bottom: normalize(5),
@@ -394,7 +413,7 @@ const Login = ({ navigation }) => {
             onDismiss={() => setVisible(false)}
           >
             <Text>{message}</Text>
-          </Snackbar>
+          </Snackbar> */}
         </View>
       )}
     </SafeAreaView>

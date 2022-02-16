@@ -15,6 +15,8 @@ import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons, Entypo } from '@expo/vector-icons';
+import CountDown from 'react-native-countdown-component';
+import moment from 'moment';
 
 const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   const dispatch = useDispatch();
@@ -65,21 +67,152 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
               +item.product.attributes.handling_cost) /
               100}
           </Text>
-          <Image
-            source={
-              data.status == 'completed'
-                ? require('../assets/check.png')
-                : require('../assets/failed.png')
-            }
-            style={styles.ticketStatus}
-          />
+          {data.status != 'pending' ? (
+            <Image
+              source={
+                data.status == 'completed'
+                  ? require('../assets/check.png')
+                  : require('../assets/failed.png')
+              }
+              style={styles.img}
+            />
+          ) : (
+            <ActivityIndicator size='large' color='#000' />
+          )}
         </View>
       </View>
     );
   };
 
+  const [time, setTime] = React.useState({
+    h: '00',
+    m: '00',
+    s: '00',
+  });
+
+  function secondsToTime(secs) {
+    let hours = Math.floor(secs / (60 * 60));
+
+    let divisor_for_minutes = secs % (60 * 60);
+    let minutes = Math.floor(divisor_for_minutes / 60);
+
+    let divisor_for_seconds = divisor_for_minutes % 60;
+    let seconds = Math.ceil(divisor_for_seconds);
+
+    let obj = {
+      h: hours,
+      m: minutes,
+      s: seconds,
+    };
+    return obj;
+  }
+
+  function startTimer() {
+    let seconds = 120;
+    let interval;
+    interval = setInterval(() => {
+      if (seconds > 0) {
+        seconds--;
+        setTime(secondsToTime(seconds));
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return interval;
+  }
+
+  React.useEffect(() => {
+    startTimer();
+  }, []);
+
+  const [close, setClose] = useState(false);
+
   return (
     <SafeAreaView style={styles.container}>
+      <Modal visible={close} animationType='fade' transparent>
+        <BlurView
+          tint='dark'
+          intensity={100}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <View
+            style={{
+              backgroundColor: '#fff',
+              width: '90%',
+              padding: normalize(20),
+              borderRadius: normalize(10),
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalize(17),
+                fontWeight: 'bold',
+                color: '#B28A17',
+              }}
+            >
+              Opgelet!
+            </Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: normalize(14),
+                color: '#5C5C5C',
+                fontWeight: '300',
+              }}
+            >
+              Zeker dat je wilt annuleren?
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '100%',
+                marginTop: normalize(15),
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#000',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => setClose(false)}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Terug
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#B28A17',
+                  paddingHorizontal: normalize(30),
+                  paddingVertical: normalize(10),
+                  borderRadius: normalize(10),
+                }}
+                onPress={() => {
+                  setClose(false);
+                  dispatch({ type: 'isPayment', isPayment: false });
+                }}
+              >
+                <Text
+                  style={{
+                    color: '#fff',
+                  }}
+                >
+                  Annuleren
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
       <TouchableOpacity
         style={{
           backgroundColor: '#ccc',
@@ -188,7 +321,16 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
           </Text>
         </View>
       )}
-      {data.status != 'pending' && (
+      <Text
+        style={{
+          paddingHorizontal: normalize(25),
+          textAlign: 'center',
+          marginTop: normalize(20),
+        }}
+      >
+        U heeft {time.m} : {time.s} minuten om uworder af te ronden
+      </Text>
+      {data.status != 'pending' ? (
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
@@ -213,6 +355,25 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
               : 'Opnieuw proberen'}
           </Text>
         </TouchableOpacity>
+      ) : (
+        time.m == 1 &&
+        time.s <= 50 && (
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => {
+              setClose(true);
+            }}
+          >
+            <Text
+              style={{
+                color: '#ffffff',
+                fontWeight: '700',
+              }}
+            >
+              Bestelling Annuleren
+            </Text>
+          </TouchableOpacity>
+        )
       )}
     </SafeAreaView>
   );

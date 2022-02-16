@@ -32,4 +32,8 @@ export const GlobalStyle = StyleSheet.create({
     flexDirection: 'column',
     paddingHorizontal: normalize(25),
   },
+  errorText: {
+    color: 'red',
+    fontSize: normalize(12),
+  },
 });
