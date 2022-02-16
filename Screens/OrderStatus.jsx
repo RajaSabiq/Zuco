@@ -306,6 +306,7 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
             ) : (
               <ActivityIndicator size='large' color='#000' />
             )}
+            ``
           </View>
           <Text
             style={{
