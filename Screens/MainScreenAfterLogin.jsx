@@ -35,6 +35,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const [data, setData] = useState(null);
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
+    console.log('orderId', orderId, goingForPayment);
     if (goingForPayment) {
       const timer = setInterval(() => {
         Axios.get(`/orders/${orderId}`)
@@ -55,7 +56,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
           });
       }, 5000);
     }
-  }, []);
+  }, [goingForPayment]);
 
   const backAction = async () => {
     await AsyncStorage.clear().then(() => {
