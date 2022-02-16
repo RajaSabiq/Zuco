@@ -8,7 +8,7 @@ import {
   Image,
   Modal,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import BottomNavigation from '../Routes/BottomNavigation';
 import { normalize } from '../Style/Responsive';
 import AddToCart from './AddToCart';
@@ -26,6 +26,7 @@ import * as Device from 'expo-device';
 const MainScreenStack = createStackNavigator();
 
 const MainScreenAfterLogin = ({ navigation }) => {
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const goingForPayment = useSelector((state) => state.goingForPayment);
   const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
@@ -35,23 +36,30 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
     if (goingForPayment) {
-      if (!data || data?.status !== 'completed' || data?.status === 'pending') {
-        setInterval(() => {
-          Axios.get(`/orders/${orderId}`)
-            .then((res) => {
-              // console.log(res.data.data.attributes);xs
+      const timer = setInterval(() => {
+        Axios.get(`/orders/${orderId}`)
+          .then((res) => {
+            if (
+              res.data.data.attributes.status !== 'pending' &&
+              goingForPayment
+            ) {
+              clearInterval(timer);
+            } else {
+              // console.log(res.data.data.attributes);
               setData(res.data.data.attributes);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }, 5000);
-      }
+            }
+          })
+          .catch((err) => {
+            clearInterval(timer);
+            console.log(err);
+          });
+      }, 5000);
     }
-  }, [goingForPayment]);
+  }, []);
 
   const backAction = async () => {
     await AsyncStorage.clear().then(() => {
+      dispatch({ type: 'CLEAR_CART' });
       navigation.replace('login');
     });
   };

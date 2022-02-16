@@ -183,7 +183,7 @@ const Tickets = ({ navigation }) => {
             }}
           >
             <Text style={{ fontSize: normalize(14), fontWeight: 'bold' }}>
-              Geen bestellingen gevonden
+              Geen tickets beschikbaar
             </Text>
           </View>
         )}

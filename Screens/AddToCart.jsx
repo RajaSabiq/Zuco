@@ -249,6 +249,7 @@ export default AddToCart;
 const styles = StyleSheet.create({
   container: {
     marginBottom: normalize(15),
+    maxHeight: '90%',
   },
   imageContainer: {
     borderRadius: 10,

@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { GlobalStyle } from '../Style/GloabalStyle';
 import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
@@ -113,11 +112,11 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
     let seconds = 120;
     let interval;
     interval = setInterval(() => {
-      if (seconds == 115) {
+      if (seconds == 90) {
         setShowButton(true);
       }
 
-      if (seconds > 0) {
+      if (seconds > 0 && data.status == 'pending') {
         seconds--;
         setTime(secondsToTime(seconds));
       } else {
@@ -333,23 +332,25 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
           </Text>
         </View>
       )}
-      <Text
-        style={{
-          paddingHorizontal: normalize(25),
-          textAlign: 'center',
-          marginTop: normalize(20),
-        }}
-      >
-        U heeft{' '}
+      {data.status === 'pending' && (
         <Text
           style={{
-            fontWeight: '700',
+            paddingHorizontal: normalize(25),
+            textAlign: 'center',
+            marginTop: normalize(20),
           }}
         >
-          {time.m} : {time.s}
-        </Text>{' '}
-        minuten om Uw order af te ronden
-      </Text>
+          U heeft{' '}
+          <Text
+            style={{
+              fontWeight: '700',
+            }}
+          >
+            {time.m} : {time.s}
+          </Text>{' '}
+          minuten om Uw order af te ronden
+        </Text>
+      )}
       {data.status != 'pending' && data !== undefined ? (
         <TouchableOpacity
           style={styles.btn}
