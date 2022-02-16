@@ -30,15 +30,16 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const goingForPayment = useSelector((state) => state.goingForPayment);
   const [{ isActiveMemberShip, impersonate_url }] = useStateValue();
   const [openBackDialog, setOpenBackDialog] = useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState(null);
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
     if (goingForPayment) {
-      if (!data || data?.status !== 'completed') {
+      if (!data || data?.status !== 'completed' || data?.status === 'pending') {
         setInterval(() => {
           Axios.get(`/orders/${orderId}`)
             .then((res) => {
+              // console.log(res.data.data.attributes);xs
               setData(res.data.data.attributes);
             })
             .catch((err) => {

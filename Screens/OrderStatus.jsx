@@ -17,17 +17,17 @@ import { normalize } from '../Style/Responsive';
 import Calender from '../Components/Calender';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons, Entypo } from '@expo/vector-icons';
-import CountDown from 'react-native-countdown-component';
-import moment from 'moment';
+import { BlurView } from 'expo-blur';
 
 const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     setTimeout(() => {
-      setOpenBackDialog(false);
+      dispatch({ type: 'isPayment', isPayment: false });
     }, 120000);
   }, []);
   const isMemberShipInCart = useSelector((state) => state.isMemberShipInCart);
+  const [showButton, setShowButton] = useState(false);
   const renderItem = ({ item }) => {
     return (
       <View style={GlobalStyle.row}>
@@ -113,6 +113,10 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
     let seconds = 120;
     let interval;
     interval = setInterval(() => {
+      if (seconds == 115) {
+        setShowButton(true);
+      }
+
       if (seconds > 0) {
         seconds--;
         setTime(secondsToTime(seconds));
@@ -239,12 +243,12 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
             ? 'Bestelling gelukt'
             : 'Bestelling mislukt'}
         </Text>
-        {data.status != 'pending' ? (
+        {data.status == 'completed' || data.status == 'canceled' ? (
           <Image
             source={
               data.status == 'completed'
                 ? require('../assets/check.png')
-                : require('../assets/failed.png')
+                : data.status == 'canceled' && require('../assets/failed.png')
             }
             style={styles.img}
           />
@@ -290,14 +294,20 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
                 +cart[0].product.attributes.handling_cost) /
                 100}
             </Text>
-            <Image
-              source={
-                data.status == 'completed'
-                  ? require('../assets/check.png')
-                  : require('../assets/failed.png')
-              }
-              style={styles.ticketStatus}
-            />
+            {data.status == 'completed' || data.status == 'canceled' ? (
+              <Image
+                source={
+                  data.status == 'completed'
+                    ? require('../assets/check.png')
+                    : data.status == 'canceled' &&
+                      require('../assets/failed.png')
+                }
+                style={styles.img}
+              />
+            ) : (
+              <ActivityIndicator size='large' color='#000' />
+            )}
+            ``
           </View>
           <Text
             style={{
@@ -340,7 +350,7 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
         </Text>{' '}
         minuten om Uw order af te ronden
       </Text>
-      {data.status != 'pending' ? (
+      {data.status != 'pending' && data !== undefined ? (
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
@@ -360,14 +370,15 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
               fontWeight: '700',
             }}
           >
-            {data.status == 'completed'
-              ? 'Overzicht bestellingen'
-              : 'Opnieuw proberen'}
+            {data !== undefined
+              ? data.status == 'completed'
+                ? 'Overzicht bestellingen'
+                : 'Opnieuw proberen'
+              : 'Bestelling Annuleren'}
           </Text>
         </TouchableOpacity>
       ) : (
-        time.m == 1 &&
-        time.s <= 50 && (
+        showButton && (
           <TouchableOpacity
             style={styles.btn}
             onPress={() => {
