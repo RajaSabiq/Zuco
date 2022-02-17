@@ -11,7 +11,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNavigation from '../Routes/BottomNavigation';
 import { normalize } from '../Style/Responsive';
-import AddToCart from './AddToCart';
 import OrderStatus from './OrderStatus';
 import addtoBasket from '../assets/cart.png';
 import Axios from '../axios/axios';
@@ -24,7 +23,6 @@ import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
 import * as Device from 'expo-device';
 
 const MainScreenStack = createStackNavigator();
-
 const MainScreenAfterLogin = ({ navigation }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
@@ -35,20 +33,18 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const [data, setData] = useState(null);
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
-    console.log('orderId', orderId, goingForPayment);
+    console.log(orderId, goingForPayment, data);
     if (goingForPayment) {
       const timer = setInterval(() => {
         Axios.get(`/orders/${orderId}`)
           .then((res) => {
             if (
-              res.data.data.attributes.status !== 'pending' &&
+              res.data.data.attributes.status !== 'pending' ||
               goingForPayment
             ) {
               clearInterval(timer);
-            } else {
-              // console.log(res.data.data.attributes);
-              setData(res.data.data.attributes);
             }
+            setData(res.data.data.attributes);
           })
           .catch((err) => {
             clearInterval(timer);
@@ -71,6 +67,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
         <OrderStatus
           data={data}
           cart={cart}
+          setData={setData}
           setOpenBackDialog={setOpenBackDialog}
           navigation={navigation}
         />
@@ -222,6 +219,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
                     <Text
                       style={{
                         color: '#fff',
+                        fontWeight: 'bold',
                       }}
                     >
                       {cart.length}

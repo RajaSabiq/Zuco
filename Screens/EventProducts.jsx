@@ -54,14 +54,10 @@ const EventProducts = ({ route, navigation }) => {
 
   const getList = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    console.log({ value });
     Axios.get(`user/${value}/tickets`)
       .then((res) => {
         const { data } = res;
         setRefreshing(false);
-        console.log(
-          data.data.some((item) => item.attributes.event.id === route.params.id)
-        );
         setAlreadyAdded(
           !data.data.some(
             (item) => item.attributes.event.id === route.params.id
@@ -256,9 +252,6 @@ const EventProducts = ({ route, navigation }) => {
                           ) ||
                           cart.length === 0
                         ) {
-                          console.log({
-                            product,
-                          });
                           dispatch(
                             addToCart({
                               isMembership: false,
