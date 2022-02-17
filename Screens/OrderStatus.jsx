@@ -210,6 +210,7 @@ const OrderStatus = ({
                 onPress={() => {
                   setClose(false);
                   setData(null);
+                  navigation.replace('AddToCart');
                   dispatch({ type: 'isPayment', isPayment: false });
                 }}
               >
