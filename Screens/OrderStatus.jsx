@@ -18,11 +18,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 
-const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
+const OrderStatus = ({
+  data,
+  cart,
+  setOpenBackDialog,
+  navigation,
+  setData,
+}) => {
   const dispatch = useDispatch();
   useEffect(() => {
     setTimeout(() => {
-      dispatch({ type: 'isPayment', isPayment: false });
+      dispatch({ type: 'CLEAR_CART' });
     }, 120000);
   }, []);
   const isMemberShipInCart = useSelector((state) => state.isMemberShipInCart);
@@ -203,6 +209,7 @@ const OrderStatus = ({ data, cart, setOpenBackDialog, navigation }) => {
                 }}
                 onPress={() => {
                   setClose(false);
+                  setData(null);
                   dispatch({ type: 'isPayment', isPayment: false });
                 }}
               >

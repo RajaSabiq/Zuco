@@ -33,6 +33,7 @@ const reducer = (state = initialState, action) => {
         cart: [],
         goingForPayment: false,
         isMemberShipInCart: false,
+        orderId: null,
       };
     case 'isPayment':
       return { ...state, goingForPayment: action.isPayment };

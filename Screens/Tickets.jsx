@@ -48,7 +48,6 @@ const Tickets = ({ navigation }) => {
           key,
           value: groupData[key],
         }));
-        console.log(groupDataArray);
         setRefreshing(false);
         setTicketList(groupDataArray);
       })

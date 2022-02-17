@@ -11,7 +11,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNavigation from '../Routes/BottomNavigation';
 import { normalize } from '../Style/Responsive';
-import AddToCart from './AddToCart';
 import OrderStatus from './OrderStatus';
 import addtoBasket from '../assets/cart.png';
 import Axios from '../axios/axios';
@@ -24,7 +23,6 @@ import UnActiveMembershipCard from '../Components/UnActiveMembershipCard';
 import * as Device from 'expo-device';
 
 const MainScreenStack = createStackNavigator();
-
 const MainScreenAfterLogin = ({ navigation }) => {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
@@ -35,20 +33,18 @@ const MainScreenAfterLogin = ({ navigation }) => {
   const [data, setData] = useState(null);
   const orderId = useSelector((state) => state.orderId);
   useEffect(() => {
-    console.log('orderId', orderId, goingForPayment);
+    console.log(orderId, goingForPayment, data);
     if (goingForPayment) {
       const timer = setInterval(() => {
         Axios.get(`/orders/${orderId}`)
           .then((res) => {
             if (
-              res.data.data.attributes.status !== 'pending' &&
+              res.data.data.attributes.status !== 'pending' ||
               goingForPayment
             ) {
               clearInterval(timer);
-            } else {
-              // console.log(res.data.data.attributes);
-              setData(res.data.data.attributes);
             }
+            setData(res.data.data.attributes);
           })
           .catch((err) => {
             clearInterval(timer);
@@ -71,6 +67,7 @@ const MainScreenAfterLogin = ({ navigation }) => {
         <OrderStatus
           data={data}
           cart={cart}
+          setData={setData}
           setOpenBackDialog={setOpenBackDialog}
           navigation={navigation}
         />
@@ -213,18 +210,21 @@ const MainScreenAfterLogin = ({ navigation }) => {
               <BottomNavigation />
               {cart.length > 0 && (
                 <TouchableOpacity
-                  style={{
-                    position: 'absolute',
-                    bottom:
-                      Device.brand == 'Apple' ? normalize(30) : normalize(10),
-                    right: normalize(10),
-                  }}
                   onPress={() => {
                     navigation.navigate('AddToCart');
                   }}
                   style={styles.addToBasketBtn}
                 >
-                  <Text style={styles.basketCount}>{cart.length}</Text>
+                  <View style={styles.basketCount}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {cart.length}
+                    </Text>
+                  </View>
                   <Image source={addtoBasket} style={styles.basketImage} />
                 </TouchableOpacity>
               )}
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   addToBasketBtn: {
     position: 'absolute',
-    bottom: normalize(50),
+    bottom: Device.brand == 'Apple' ? normalize(70) : normalize(50),
     right: normalize(15),
     backgroundColor: '#B28A17',
     width: normalize(45),
@@ -266,6 +266,7 @@ const styles = StyleSheet.create({
     right: -normalize(5),
     width: normalize(23),
     height: normalize(23),
-    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
