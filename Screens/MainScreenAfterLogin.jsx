@@ -213,18 +213,20 @@ const MainScreenAfterLogin = ({ navigation }) => {
               <BottomNavigation />
               {cart.length > 0 && (
                 <TouchableOpacity
-                  style={{
-                    position: 'absolute',
-                    bottom:
-                      Device.brand == 'Apple' ? normalize(30) : normalize(10),
-                    right: normalize(10),
-                  }}
                   onPress={() => {
                     navigation.navigate('AddToCart');
                   }}
                   style={styles.addToBasketBtn}
                 >
-                  <Text style={styles.basketCount}>{cart.length}</Text>
+                  <View style={styles.basketCount}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                      }}
+                    >
+                      {cart.length}
+                    </Text>
+                  </View>
                   <Image source={addtoBasket} style={styles.basketImage} />
                 </TouchableOpacity>
               )}
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
   },
   addToBasketBtn: {
     position: 'absolute',
-    bottom: normalize(50),
+    bottom: Device.brand == 'Apple' ? normalize(85) : normalize(50),
     right: normalize(15),
     backgroundColor: '#B28A17',
     width: normalize(45),
@@ -259,13 +261,14 @@ const styles = StyleSheet.create({
     padding: normalize(5),
     backgroundColor: '#000',
     color: '#fff',
-    borderRadius: normalize(100),
+    borderRadius: 100,
     top: -10,
     fontWeight: 'bold',
     fontSize: normalize(12),
     right: -normalize(5),
     width: normalize(23),
     height: normalize(23),
-    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

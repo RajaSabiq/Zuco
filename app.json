@@ -2,7 +2,7 @@
   "expo": {
     "name": "Zuco",
     "slug": "Zuco",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "orientation": "portrait",
     "scheme": "zuco-nightclub",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.magicalnightlife.zuco",
-      "buildNumber": "1.1.1"
+      "buildNumber": "1.1.2"
     },
     "android": {
       "adaptiveIcon": {
