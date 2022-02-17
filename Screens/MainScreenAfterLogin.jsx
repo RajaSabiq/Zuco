@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   addToBasketBtn: {
     position: 'absolute',
-    bottom: Device.brand == 'Apple' ? normalize(85) : normalize(50),
+    bottom: Device.brand == 'Apple' ? normalize(95) : normalize(50),
     right: normalize(15),
     backgroundColor: '#B28A17',
     width: normalize(45),
